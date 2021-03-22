@@ -1,0 +1,13 @@
+spring:
+  bot:
+    plugin-list:
+      - com.arttnba3.a3bot2.plugin.AntiWithdrawPlugin
+      - com.arttnba3.a3bot2.plugin.PluginSystemPlugin
+      - com.arttnba3.a3bot2.plugin.RepeaterPlugin
+      - com.arttnba3.a3bot2.plugin.MessageWallPlugin
+      # following plugins are under the control of plugin system
+      - com.arttnba3.a3bot2.plugin.RainbowFartPlugin
+      - com.arttnba3.a3bot2.plugin.KillMotherPlugin
+
+server:
+  port: 8081
