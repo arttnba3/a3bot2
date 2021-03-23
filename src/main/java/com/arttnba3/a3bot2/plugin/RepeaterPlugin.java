@@ -16,6 +16,7 @@ public class RepeaterPlugin extends A3Plugin
 {
     Map map = new HashMap();
 
+
     public RepeaterPlugin()
     {
         this.setPluginName("RepeaterPlugin");
@@ -31,7 +32,7 @@ public class RepeaterPlugin extends A3Plugin
 
     @Override
     @SuppressWarnings("unchecked")
-    public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
+    public synchronized int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
         if (!this.isEnabled())
             return MESSAGE_IGNORE;

@@ -34,6 +34,11 @@ public class AntiWithdrawPlugin extends A3Plugin
         long group_id = event.getGroupId();
         long user_id = event.getUserId();
         int message_id = event.getMessageId();
+
+        // to prevent the unstoppable nesting message
+        if (user_id == bot.getSelfId())
+            return MESSAGE_IGNORE;
+
         String raw_message = bot.getMsg(message_id).getRawMessage();
         OnebotApi.GetMsgResp msg_resp = bot.getMsg(message_id);
 
