@@ -1,6 +1,7 @@
 package com.arttnba3.a3bot2.plugin;
 
 import com.arttnba3.a3bot2.a3lib.A3Plugin;
+import kotlin.KotlinNullPointerException;
 import net.lz1998.pbbot.bot.Bot;
 import net.lz1998.pbbot.bot.BotPlugin;
 import onebot.OnebotEvent;

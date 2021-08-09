@@ -6,6 +6,7 @@ spring:
       - com.arttnba3.a3bot2.plugin.RepeaterPlugin
       - com.arttnba3.a3bot2.plugin.MessageWallPlugin
       # following plugins are under the control of plugin system
+      - com.arttnba3.a3bot2.plugin.SignInPlugin
       - com.arttnba3.a3bot2.plugin.RainbowFartPlugin
       - com.arttnba3.a3bot2.plugin.KillMotherPlugin
 

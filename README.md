@@ -112,6 +112,7 @@ For better experience, I've built some plugins for you to use:
 - anti-withdraw plugin 1.0: a plugin to resend the message that was withdrawn by someone
 - rainbow-fart plugin 1.0: to simply get a sentence from [https://chp.shadiao.app](https://chp.shadiao.app) by the command `/rainbow`
 - mother-killing plugin 1.0: to simply get a sentence from [https://nmsl.shadiao.app](https://chp.shadiao.app) by the command `/nmsl`
+- sign-in plugin 1.0: to simply record the sign-in in order by the command `/signin`
 - message walls 1.0: a plugin to intercepts all the message which may not be dealt by the plugin system
 - ...
 

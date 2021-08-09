@@ -35,6 +35,7 @@ build/
 ### a3bot2 data ###
 conf.ini
 data/
+target/
 
 ### GMC ###
 gmc-0.1.5/
