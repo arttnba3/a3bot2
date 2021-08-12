@@ -16,7 +16,6 @@ public class RepeaterPlugin extends A3Plugin
 {
     Map map = new HashMap();
 
-
     public RepeaterPlugin()
     {
         this.setPluginName("RepeaterPlugin");
@@ -38,25 +37,25 @@ public class RepeaterPlugin extends A3Plugin
             return MESSAGE_IGNORE;
 
         List<OnebotBase.Message> msg = event.getMessageList();
-        long groupId = event.getGroupId();
+        long group_id = event.getGroupId();
 
-        if (!map.containsKey(groupId))
+        if (!map.containsKey(group_id))
         {
-            map.put(groupId, new RepeatInfo(msg, false));
+            map.put(group_id, new RepeatInfo(msg, false));
             return MESSAGE_IGNORE;
         }
 
-        if (msg.equals(((RepeatInfo)(map.get(groupId))).msg))
+        if (msg.equals(((RepeatInfo)(map.get(group_id))).msg))
         {
-            if (!((RepeatInfo)(map.get(groupId))).is_repeated)
+            if (!((RepeatInfo)(map.get(group_id))).is_repeated)
             {
-                bot.sendGroupMsg(groupId,msg,true);
-                ((RepeatInfo)(map.get(groupId))).is_repeated = true;
+                bot.sendGroupMsg(group_id,msg,true);
+                ((RepeatInfo)(map.get(group_id))).is_repeated = true;
             }
         }
         else
-            ((RepeatInfo)(map.get(groupId))).is_repeated = false;
-        ((RepeatInfo)(map.get(groupId))).msg = msg;
+            ((RepeatInfo)(map.get(group_id))).is_repeated = false;
+        ((RepeatInfo)(map.get(group_id))).msg = msg;
 
         return MESSAGE_IGNORE;
     }

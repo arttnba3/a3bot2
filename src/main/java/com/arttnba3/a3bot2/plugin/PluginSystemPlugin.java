@@ -5,8 +5,10 @@ import kotlin.KotlinNullPointerException;
 import net.lz1998.pbbot.bot.Bot;
 import net.lz1998.pbbot.bot.BotPlugin;
 import onebot.OnebotEvent;
+import org.apache.tomcat.util.buf.StringUtils;
 import org.ini4j.Wini;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -121,11 +123,13 @@ public class PluginSystemPlugin extends BotPlugin
     @Override
     public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
-        long userId = event.getUserId();
-        long groupId = event.getGroupId();
+        long user_id = event.getUserId();
+        long group_id = event.getGroupId();
         String msg = event.getRawMessage();
 
-        String[] args = msg.split(" ");
+        String[] args = messageParser(msg);//msg.split(" ");
+        if (args == null)
+            return MESSAGE_IGNORE;
 
         // not the command
         if (args[0].length() == 0 || args[0].charAt(0) != '/')
@@ -144,7 +148,7 @@ public class PluginSystemPlugin extends BotPlugin
                     if (a3_plugin.isEnabled())
                         message += "\n"+a3_plugin.getPluginName();
                 }
-                bot.sendGroupMsg(groupId,message,false);
+                bot.sendGroupMsg(group_id,message,false);
             }
             else
             {
@@ -158,21 +162,21 @@ public class PluginSystemPlugin extends BotPlugin
                         a3_plugin = plugin_list.get(i);
                         message += "\n" + a3_plugin.getPluginName() + (a3_plugin.isEnabled()?"":"（未启用）");
                     }
-                    bot.sendGroupMsg(groupId,message,false);
+                    bot.sendGroupMsg(group_id,message,false);
                 }
 
                 // plugin load & unload system
                 else if (args_1.equals("load") || args_1.equals("unload"))
                 {
-                    if(userId != admin && !permission_list.contains(userId))
+                    if(user_id != admin && !permission_list.contains(user_id))
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
                     if (args.length < 3)
                     {
-                        bot.sendGroupMsg(groupId,  "Invalid plugin name: (null)", false);
+                        bot.sendGroupMsg(group_id,  "Invalid plugin name: (null)", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -187,7 +191,7 @@ public class PluginSystemPlugin extends BotPlugin
 
                     if (plugin == null)
                     {
-                        bot.sendGroupMsg(groupId,  "Invalid plugin name: " + plugin_name, false);
+                        bot.sendGroupMsg(group_id,  "Invalid plugin name: " + plugin_name, false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -195,22 +199,22 @@ public class PluginSystemPlugin extends BotPlugin
                     {
                         if (plugin.isEnabled())
                         {
-                            bot.sendGroupMsg(groupId,  "Plugin: [" + plugin_name + "] already loaded.", false);
+                            bot.sendGroupMsg(group_id,  "Plugin: [" + plugin_name + "] already loaded.", false);
                             return MESSAGE_BLOCK;
                         }
                         plugin.setEnabled(true);
-                        bot.sendGroupMsg(groupId,  "Plugin: [" + plugin_name + "] loaded successfully.", false);
+                        bot.sendGroupMsg(group_id,  "Plugin: [" + plugin_name + "] loaded successfully.", false);
                         return MESSAGE_BLOCK;
                     }
                     else
                     {
                         if (!plugin.isEnabled())
                         {
-                            bot.sendGroupMsg(groupId,  "Plugin: [" + plugin_name + "] already unloaded.", false);
+                            bot.sendGroupMsg(group_id,  "Plugin: [" + plugin_name + "] already unloaded.", false);
                             return MESSAGE_BLOCK;
                         }
                         plugin.setEnabled(false);
-                        bot.sendGroupMsg(groupId,  "Plugin: [" + plugin_name + "] unloaded successfully.", false);
+                        bot.sendGroupMsg(group_id,  "Plugin: [" + plugin_name + "] unloaded successfully.", false);
                         return MESSAGE_BLOCK;
                     }
                 }
@@ -218,9 +222,9 @@ public class PluginSystemPlugin extends BotPlugin
                 // load and save enable status
                 else if (args_1.equals("enable-save"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -242,19 +246,19 @@ public class PluginSystemPlugin extends BotPlugin
                         objectOutputStream.writeObject(plugin_status);
                         objectOutputStream.close();
                         outputStream.close();
-                        bot.sendGroupMsg(groupId,"Plugins\'s statuses saved successfully.",false);
+                        bot.sendGroupMsg(group_id,"Plugins\'s statuses saved successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args_1.equals("enable-load"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -264,7 +268,7 @@ public class PluginSystemPlugin extends BotPlugin
                         File permission_data = new File("data/plugin_status.data");
                         if (!permission_data.exists())
                         {
-                            bot.sendGroupMsg(groupId, "statuses data not existed.", false);
+                            bot.sendGroupMsg(group_id, "statuses data not existed.", false);
                             return MESSAGE_BLOCK;
                         }
 
@@ -282,21 +286,21 @@ public class PluginSystemPlugin extends BotPlugin
                                 plugin.setEnabled((boolean) plugin_status.get(plugin.getPluginName()));
                         }
 
-                        bot.sendGroupMsg(groupId,"Plugins\'s statuses loaded successfully.",false);
+                        bot.sendGroupMsg(group_id,"Plugins\'s statuses loaded successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
 
                 // permission data for plugin system
                 else if (args_1.equals("sys-save"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -310,19 +314,19 @@ public class PluginSystemPlugin extends BotPlugin
                         objectOutputStream.writeObject(permission_list);
                         objectOutputStream.close();
                         outputStream.close();
-                        bot.sendGroupMsg(groupId,"Permission data saved successfully.",false);
+                        bot.sendGroupMsg(group_id,"Permission data saved successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args_1.equals("sys-load"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -331,7 +335,7 @@ public class PluginSystemPlugin extends BotPlugin
                         File permission_data = new File("data/permission.data");
                         if (!permission_data.exists())
                         {
-                            bot.sendGroupMsg(groupId, "permission data not existed.", false);
+                            bot.sendGroupMsg(group_id, "permission data not existed.", false);
                             return MESSAGE_BLOCK;
                         }
 
@@ -340,30 +344,30 @@ public class PluginSystemPlugin extends BotPlugin
                         permission_list = (List) objectInputStream.readObject();
                         objectInputStream.close();
                         inputStream.close();
-                        bot.sendGroupMsg(groupId,"Permission data loaded successfully.",false);
+                        bot.sendGroupMsg(group_id,"Permission data loaded successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args_1.equals("sys-clear"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
                     permission_list.clear();
-                    bot.sendGroupMsg(groupId, "Permision list cleared.", false);
+                    bot.sendGroupMsg(group_id, "Permision list cleared.", false);
                 }
                 else if (args_1.equals("sys-init"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendGroupMsg(groupId, "Permission denied. Authorization limited.", false);
+                        bot.sendGroupMsg(group_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -374,13 +378,13 @@ public class PluginSystemPlugin extends BotPlugin
                         plugin.setAdmin(admin);
                         plugin.setPermissionList(permission_list);
                     }
-                    bot.sendGroupMsg(groupId, "Success.", false);
+                    bot.sendGroupMsg(group_id, "Success.", false);
                 }
 
                 // others under "/plugin", print help info for it
                 else
                 {
-                    bot.sendGroupMsg(groupId, help_info, false);
+                    bot.sendGroupMsg(group_id, help_info, false);
                     return MESSAGE_BLOCK;
                 }
             }
@@ -395,10 +399,12 @@ public class PluginSystemPlugin extends BotPlugin
     @Override
     public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
     {
-        long userId = event.getUserId();
+        long user_id = event.getUserId();
         String msg = event.getRawMessage();
 
-        String[] args = msg.split(" ");
+        String[] args = messageParser(msg);//msg.split(" ");
+        if (args == null)
+            return MESSAGE_IGNORE;
 
         // not the command
         if (args[0].length() == 0 || args[0].charAt(0) != '/')
@@ -417,7 +423,7 @@ public class PluginSystemPlugin extends BotPlugin
                     if (a3_plugin.isEnabled())
                         message += "\n"+a3_plugin.getPluginName();
                 }
-                bot.sendPrivateMsg(userId,message,false);
+                bot.sendPrivateMsg(user_id,message,false);
             }
             else
             {
@@ -431,21 +437,21 @@ public class PluginSystemPlugin extends BotPlugin
                         a3_plugin = plugin_list.get(i);
                         message += "\n" + a3_plugin.getPluginName() + (a3_plugin.isEnabled()?"":"（未启用）");
                     }
-                    bot.sendPrivateMsg(userId,message,false);
+                    bot.sendPrivateMsg(user_id,message,false);
                 }
 
                 // plugin load & unload system
                 else if (args_1.equals("load") || args_1.equals("unload"))
                 {
-                    if(userId != admin && !permission_list.contains(userId))
+                    if(user_id != admin && !permission_list.contains(user_id))
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
                     if (args.length < 3)
                     {
-                        bot.sendPrivateMsg(userId,  "Invalid plugin name: (null)", false);
+                        bot.sendPrivateMsg(user_id,  "Invalid plugin name: (null)", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -460,7 +466,7 @@ public class PluginSystemPlugin extends BotPlugin
 
                     if (plugin == null)
                     {
-                        bot.sendPrivateMsg(userId,  "Invalid plugin name: " + plugin_name, false);
+                        bot.sendPrivateMsg(user_id,  "Invalid plugin name: " + plugin_name, false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -468,22 +474,22 @@ public class PluginSystemPlugin extends BotPlugin
                     {
                         if (plugin.isEnabled())
                         {
-                            bot.sendPrivateMsg(userId,  "Plugin: [" + plugin_name + "] already loaded.", false);
+                            bot.sendPrivateMsg(user_id,  "Plugin: [" + plugin_name + "] already loaded.", false);
                             return MESSAGE_BLOCK;
                         }
                         plugin.setEnabled(true);
-                        bot.sendPrivateMsg(userId,  "Plugin: [" + plugin_name + "] loaded successfully.", false);
+                        bot.sendPrivateMsg(user_id,  "Plugin: [" + plugin_name + "] loaded successfully.", false);
                         return MESSAGE_BLOCK;
                     }
                     else
                     {
                         if (!plugin.isEnabled())
                         {
-                            bot.sendPrivateMsg(userId,  "Plugin: [" + plugin_name + "] already unloaded.", false);
+                            bot.sendPrivateMsg(user_id,  "Plugin: [" + plugin_name + "] already unloaded.", false);
                             return MESSAGE_BLOCK;
                         }
                         plugin.setEnabled(false);
-                        bot.sendPrivateMsg(userId,  "Plugin: [" + plugin_name + "] unloaded successfully.", false);
+                        bot.sendPrivateMsg(user_id,  "Plugin: [" + plugin_name + "] unloaded successfully.", false);
                         return MESSAGE_BLOCK;
                     }
                 }
@@ -491,9 +497,9 @@ public class PluginSystemPlugin extends BotPlugin
                 // load and save enable status
                 else if (args_1.equals("enable-save"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -515,19 +521,19 @@ public class PluginSystemPlugin extends BotPlugin
                         objectOutputStream.writeObject(plugin_status);
                         objectOutputStream.close();
                         outputStream.close();
-                        bot.sendPrivateMsg(userId,"Plugins\'s statuses saved successfully.",false);
+                        bot.sendPrivateMsg(user_id,"Plugins\'s statuses saved successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args_1.equals("enable-load"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -537,7 +543,7 @@ public class PluginSystemPlugin extends BotPlugin
                         File permission_data = new File("data/plugin_status.data");
                         if (!permission_data.exists())
                         {
-                            bot.sendPrivateMsg(userId, "statuses data not existed.", false);
+                            bot.sendPrivateMsg(user_id, "statuses data not existed.", false);
                             return MESSAGE_BLOCK;
                         }
 
@@ -555,21 +561,21 @@ public class PluginSystemPlugin extends BotPlugin
                                 plugin.setEnabled((boolean) plugin_status.get(plugin.getPluginName()));
                         }
 
-                        bot.sendPrivateMsg(userId,"Plugins\'s statuses loaded successfully.",false);
+                        bot.sendPrivateMsg(user_id,"Plugins\'s statuses loaded successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
 
                 // permission data for plugin system
                 else if (args_1.equals("sys-save"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -583,19 +589,19 @@ public class PluginSystemPlugin extends BotPlugin
                         objectOutputStream.writeObject(permission_list);
                         objectOutputStream.close();
                         outputStream.close();
-                        bot.sendPrivateMsg(userId,"Permission data saved successfully.",false);
+                        bot.sendPrivateMsg(user_id,"Permission data saved successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args_1.equals("sys-load"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -604,7 +610,7 @@ public class PluginSystemPlugin extends BotPlugin
                         File permission_data = new File("data/permission.data");
                         if (!permission_data.exists())
                         {
-                            bot.sendPrivateMsg(userId, "permission data not existed.", false);
+                            bot.sendPrivateMsg(user_id, "permission data not existed.", false);
                             return MESSAGE_BLOCK;
                         }
 
@@ -613,30 +619,30 @@ public class PluginSystemPlugin extends BotPlugin
                         permission_list = (List) objectInputStream.readObject();
                         objectInputStream.close();
                         inputStream.close();
-                        bot.sendPrivateMsg(userId,"Permission data loaded successfully.",false);
+                        bot.sendPrivateMsg(user_id,"Permission data loaded successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args_1.equals("sys-clear"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
                     permission_list.clear();
-                    bot.sendPrivateMsg(userId, "Permision list cleared.", false);
+                    bot.sendPrivateMsg(user_id, "Permision list cleared.", false);
                 }
                 else if (args_1.equals("sys-init"))
                 {
-                    if(userId != admin)
+                    if(user_id != admin)
                     {
-                        bot.sendPrivateMsg(userId, "Permission denied. Authorization limited.", false);
+                        bot.sendPrivateMsg(user_id, "Permission denied. Authorization limited.", false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -647,13 +653,13 @@ public class PluginSystemPlugin extends BotPlugin
                         plugin.setAdmin(admin);
                         plugin.setPermissionList(permission_list);
                     }
-                    bot.sendPrivateMsg(userId, "Success.", false);
+                    bot.sendPrivateMsg(user_id, "Success.", false);
                 }
 
                 //others
                 else
                 {
-                    bot.sendPrivateMsg(userId, help_info, false);
+                    bot.sendPrivateMsg(user_id, help_info, false);
                     return MESSAGE_BLOCK;
                 }
             }
@@ -663,6 +669,95 @@ public class PluginSystemPlugin extends BotPlugin
 
         // analyse command for other plugins
         return analyseArgs(bot, null, event, TYPE_MESSAGE_PRIVATE, args);
+    }
+
+    public String[] messageParser(String msg)
+    {
+        ArrayList<String> args = new ArrayList<>();
+        StringBuilder per_arg = new StringBuilder();
+        boolean backslash = false, str_start = false, quotation = false, is_space = false;
+        char current;
+
+        for (int i = 0, len = msg.length(), each = 0; i < len; i++)
+        {
+            current = msg.charAt(i);
+            if (backslash)
+            {
+                backslash = false;
+                switch (current)
+                {
+                    case 'n':
+                        current = '\n';
+                        break;
+                    case 'b':
+                        current = '\b';
+                        break;
+                    case 'f':
+                        current = '\f';
+                        break;
+                    case 't':
+                        current = '\t';
+                        break;
+                    default:
+                        break;
+                }
+                per_arg.append(current);
+                continue;
+            }
+            if (current == '\\') // backslash is false
+            {
+                backslash = true;
+                continue;
+            }
+
+            if (per_arg.length() > 0)
+                str_start = true;
+
+            if (current == '"')
+            {
+                if (str_start && !quotation)
+                    return null;    // illegal string
+
+                if (!str_start && !quotation)
+                {
+                    quotation = true;
+                    str_start = true;
+                    continue;
+                }
+
+                args.add(per_arg.toString());
+                //System.out.println(String.valueOf(args.size()) + "A: " + args.get(args.size() - 1));
+                per_arg = new StringBuilder();
+                str_start = false;
+                quotation = false;
+                continue;
+            }
+
+            if (current == ' ')
+            {
+                if (!str_start)
+                    continue;
+                if (str_start && !quotation)
+                {
+                    args.add(per_arg.toString());
+                    //System.out.println(String.valueOf(args.size()) + "B: " + args.get(args.size() - 1));
+                    per_arg = new StringBuilder();
+                    str_start = false;
+                    continue;
+                }
+            }
+
+            per_arg.append(current);
+        }
+
+        if (quotation) // unaccomplished string with '"'
+            return null;
+
+        if (per_arg.length() > 0)
+            args.add(per_arg.toString());
+        //System.out.println(String.valueOf(args.size()) + "C: " + args.get(args.size() - 1));
+
+        return args.toArray(new String[args.size()]);
     }
 
 }

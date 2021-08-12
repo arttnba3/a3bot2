@@ -31,7 +31,7 @@ public class RainbowFartPlugin extends A3Plugin
     @Override
     public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
     {
-        long userId = event.getUserId();
+        long user_id = event.getUserId();
         String[] args = this.getArgs();
 
         if (args.length == 1)
@@ -45,7 +45,7 @@ public class RainbowFartPlugin extends A3Plugin
                 httpURLConnection.connect();
 
                 String rainbow_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(),"UTF-8")).readLine();
-                bot.sendPrivateMsg(userId, rainbow_msg,false);
+                bot.sendPrivateMsg(user_id, rainbow_msg,false);
 
                 httpURLConnection.disconnect();
             }
@@ -62,23 +62,23 @@ public class RainbowFartPlugin extends A3Plugin
             {
                 if (args.length == 2)
                 {
-                    bot.sendPrivateMsg(userId, help_info, false);
+                    bot.sendPrivateMsg(user_id, help_info, false);
                     return MESSAGE_BLOCK;
                 }
 
-                if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                 {
-                    bot.sendPrivateMsg(userId, "Permission denied, authorization limited.", false);
+                    bot.sendPrivateMsg(user_id, "Permission denied, authorization limited.", false);
                     return MESSAGE_BLOCK;
                 }
 
                 this.level = args[2];
-                bot.sendPrivateMsg(userId,"Success.",false);
+                bot.sendPrivateMsg(user_id,"Success.",false);
                 return MESSAGE_BLOCK;
             }
             else
             {
-                bot.sendPrivateMsg(userId, help_info, false);
+                bot.sendPrivateMsg(user_id, help_info, false);
                 return MESSAGE_BLOCK;
             }
         }
@@ -87,8 +87,8 @@ public class RainbowFartPlugin extends A3Plugin
     @Override
     public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
-        long groupId = event.getGroupId();
-        long userId = event.getUserId();
+        long group_id = event.getGroupId();
+        long user_id = event.getUserId();
         String[] args = this.getArgs();
 
         if (args.length == 1)
@@ -102,7 +102,7 @@ public class RainbowFartPlugin extends A3Plugin
                 httpURLConnection.connect();
 
                 String rainbow_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(),"UTF-8")).readLine();
-                bot.sendGroupMsg(groupId,rainbow_msg,false);
+                bot.sendGroupMsg(group_id,rainbow_msg,false);
 
                 httpURLConnection.disconnect();
             }
@@ -119,23 +119,23 @@ public class RainbowFartPlugin extends A3Plugin
             {
                 if (args.length == 2)
                 {
-                    bot.sendGroupMsg(groupId, help_info, false);
+                    bot.sendGroupMsg(group_id, help_info, false);
                     return MESSAGE_BLOCK;
                 }
 
-                if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                 {
-                    bot.sendGroupMsg(groupId, "Permission denied, authorization limited.", false);
+                    bot.sendGroupMsg(group_id, "Permission denied, authorization limited.", false);
                     return MESSAGE_BLOCK;
                 }
 
                 this.level = args[2];
-                bot.sendGroupMsg(groupId,"Success.",false);
+                bot.sendGroupMsg(group_id,"Success.",false);
                 return MESSAGE_BLOCK;
             }
             else
             {
-                bot.sendGroupMsg(groupId, help_info, false);
+                bot.sendGroupMsg(group_id, help_info, false);
                 return MESSAGE_BLOCK;
             }
         }

@@ -145,6 +145,7 @@ public class SignInPlugin extends A3Plugin
                     }
                     long per_group_id = Long.valueOf(args[3]);
                     per_group = sign_in_data.get(per_group_id);
+                    if (per_group == null)
                     {
                         per_group = new Pair<ArrayList<String>, ArrayList<Long>>(new ArrayList<String>(100), new ArrayList<Long>());
                         per_group_msg = per_group.getFirst();
@@ -214,6 +215,7 @@ public class SignInPlugin extends A3Plugin
                     long clear_grp_id = Long.valueOf(args[2]);
                     per_group_list = sign_in_data.get(clear_grp_id).getSecond();
                     per_group_list.clear();
+                    bot.sendGroupMsg(group_id, "Success.", false);
                 }
                 catch (Exception e)
                 {

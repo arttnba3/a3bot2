@@ -107,12 +107,13 @@ admin = 1145141919
 
 For better experience, I've built some plugins for you to use:
 
-- plugin system 1.0: a plugin to control all the plugins, all messages shall be dealt by it. command: `/plugin`
+- plugin system 1.1.5: a plugin to control all the plugins, all messages will(and shall) be dealt by it **with a simple parser**. command: `/plugin`
 - repeater plugin 1.0: to simply repeat the message that was sent continuously for more than one time in a group
 - anti-withdraw plugin 1.0: a plugin to resend the message that was withdrawn by someone
 - rainbow-fart plugin 1.0: to simply get a sentence from [https://chp.shadiao.app](https://chp.shadiao.app) by the command `/rainbow`
 - mother-killing plugin 1.0: to simply get a sentence from [https://nmsl.shadiao.app](https://chp.shadiao.app) by the command `/nmsl`
 - sign-in plugin 1.0: to simply record the sign-in in order by the command `/signin`
+- echo plugin 1.0: to simply echo a sentence with command `/echo` (only for admin temporarily)
 - message walls 1.0: a plugin to intercepts all the message which may not be dealt by the plugin system
 - ...
 
@@ -142,7 +143,7 @@ public class DemoPlugin extends A3Plugin
     @Override
     public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
     {
-        long userId = event.getUserId();
+        long user_id = event.getUserId();
         String[] args = this.getArgs();
 
         /*do something*/
@@ -153,8 +154,8 @@ public class DemoPlugin extends A3Plugin
     @Override
     public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
-        long groupId = event.getGroupId();
-        long userId = event.getUserId();
+        long group_id = event.getGroupId();
+        long user_id = event.getUserId();
         String[] args = this.getArgs();
 
         /*do something*/

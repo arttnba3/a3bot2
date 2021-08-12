@@ -67,13 +67,13 @@ public class KillMotherPlugin extends A3Plugin
         // 获取 消息内容 群号 发送者QQ
         String msg = event.getRawMessage();
         String[] args = this.getArgs();
-        long userId = event.getUserId();
+        long user_id = event.getUserId();
 
         if (args[0].equals("/nmsl"))
         {
-            if (userId != this.getAdmin() && !killer_list.contains(userId))
+            if (user_id != this.getAdmin() && !killer_list.contains(user_id))
             {
-                bot.sendPrivateMsg(userId,"Permission denied, authorization limited.",false);
+                bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
                 return MESSAGE_BLOCK;
             }
             if (args.length == 1)
@@ -87,7 +87,7 @@ public class KillMotherPlugin extends A3Plugin
                     httpURLConnection.connect();
 
                     String mother_killing_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8")).readLine();
-                    bot.sendPrivateMsg(userId, mother_killing_msg, false);
+                    bot.sendPrivateMsg(user_id, mother_killing_msg, false);
 
                     httpURLConnection.disconnect();
                 } catch (Exception e)
@@ -98,57 +98,57 @@ public class KillMotherPlugin extends A3Plugin
             }
             else if (args.length < 3)
             {
-                bot.sendPrivateMsg(userId, help_info, false);
+                bot.sendPrivateMsg(user_id, help_info, false);
                 return MESSAGE_BLOCK;
             }
             else
             {
                 if (args[1].equals("add") || args[1].equals("del"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendPrivateMsg(userId,"Permission denied, authorization limited.",false);
+                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
                     try
                     {
-                        long obj_user = Long.valueOf(args[2]);//  /nmsl add userId
+                        long obj_user = Long.valueOf(args[2]);//  /nmsl add user_id
 
                         if (args[0].equals("add"))
                         {
                             if (killer_list.contains(obj_user))
                             {
-                                bot.sendPrivateMsg(userId,"Already permitted.",false);
+                                bot.sendPrivateMsg(user_id,"Already permitted.",false);
                                 return MESSAGE_BLOCK;
                             }
                             killer_list.add(obj_user);
-                            bot.sendPrivateMsg(userId,"Success.",false);
+                            bot.sendPrivateMsg(user_id,"Success.",false);
                         }
                         else
                         {
                             if (!killer_list.contains(obj_user))
                             {
-                                bot.sendPrivateMsg(userId,"Permitted user not found.",false);
+                                bot.sendPrivateMsg(user_id,"Permitted user not found.",false);
                                 return MESSAGE_BLOCK;
                             }
                             killer_list.remove(obj_user);
-                            bot.sendPrivateMsg(userId,"Success.",false);
+                            bot.sendPrivateMsg(user_id,"Success.",false);
                         }
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId,"incorrect argument(s) input",false);
+                        bot.sendPrivateMsg(user_id,"incorrect argument(s) input",false);
                     }
 
                     return MESSAGE_BLOCK;
                 }
                 else if (args[1].equals("set"))
                 {
-                    if (userId != this.getAdmin() && !killer_list.contains(userId))
+                    if (user_id != this.getAdmin() && !killer_list.contains(user_id))
                     {
-                        bot.sendPrivateMsg(userId,"Permission denied, authorization limited.",false);
+                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
                     this.level = args[2];
@@ -156,9 +156,9 @@ public class KillMotherPlugin extends A3Plugin
                 }
                 else if (args[1].equals("save"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendPrivateMsg(userId,"Permission denied, authorization limited.",false);
+                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -172,19 +172,19 @@ public class KillMotherPlugin extends A3Plugin
                         objectOutputStream.writeObject(killer_list);
                         objectOutputStream.close();
                         outputStream.close();
-                        bot.sendPrivateMsg(userId,"Killer data saved successfully.",false);
+                        bot.sendPrivateMsg(user_id,"Killer data saved successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args[1].equals("load"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendPrivateMsg(userId,"Permission denied, authorization limited.",false);
+                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -193,7 +193,7 @@ public class KillMotherPlugin extends A3Plugin
                         File killer_data = new File(this.getDataPath());
                         if (!killer_data.exists())
                         {
-                            bot.sendPrivateMsg(userId, "Killer data not existed.", false);
+                            bot.sendPrivateMsg(user_id, "Killer data not existed.", false);
                             return MESSAGE_BLOCK;
                         }
 
@@ -202,27 +202,27 @@ public class KillMotherPlugin extends A3Plugin
                         killer_list = (List) objectInputStream.readObject();
                         objectInputStream.close();
                         inputStream.close();
-                        bot.sendPrivateMsg(userId,"Killer data loaded successfully.",false);
+                        bot.sendPrivateMsg(user_id,"Killer data loaded successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendPrivateMsg(userId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args[1].equals("clear"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendPrivateMsg(userId,"Permission denied, authorization limited.",false);
+                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
                     killer_list.clear();
-                    bot.sendPrivateMsg(userId, "Killer data cleared.", false);
+                    bot.sendPrivateMsg(user_id, "Killer data cleared.", false);
                 }
                 else
-                    bot.sendPrivateMsg(userId, help_info, false);
+                    bot.sendPrivateMsg(user_id, help_info, false);
 
                 return MESSAGE_BLOCK;
             }
@@ -241,14 +241,14 @@ public class KillMotherPlugin extends A3Plugin
         // 获取 消息内容 群号 发送者QQ
         String msg = event.getRawMessage();
         String[] args = this.getArgs();
-        long groupId = event.getGroupId();
-        long userId = event.getUserId();
+        long group_id = event.getGroupId();
+        long user_id = event.getUserId();
 
         if (args[0].equals("/nmsl"))
         {
-            if (userId != this.getAdmin() && !killer_list.contains(userId))
+            if (user_id != this.getAdmin() && !killer_list.contains(user_id))
             {
-                bot.sendGroupMsg(groupId,"Permission denied, authorization limited.",false);
+                bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
                 return MESSAGE_BLOCK;
             }
             if (args.length == 1)
@@ -262,7 +262,7 @@ public class KillMotherPlugin extends A3Plugin
                     httpURLConnection.connect();
 
                     String mother_killing_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8")).readLine();
-                    bot.sendGroupMsg(groupId, mother_killing_msg, false);
+                    bot.sendGroupMsg(group_id, mother_killing_msg, false);
 
                     httpURLConnection.disconnect();
                 } catch (Exception e)
@@ -273,57 +273,57 @@ public class KillMotherPlugin extends A3Plugin
             }
             else if (args.length < 3)
             {
-                bot.sendGroupMsg(groupId, help_info, false);
+                bot.sendGroupMsg(group_id, help_info, false);
                 return MESSAGE_BLOCK;
             }
             else
             {
                 if (args[1].equals("add") || args[1].equals("del"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendGroupMsg(groupId,"Permission denied, authorization limited.",false);
+                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
                     try
                     {
-                        long obj_user = Long.valueOf(args[2]);//  /nmsl add userId
+                        long obj_user = Long.valueOf(args[2]);//  /nmsl add user_id
 
                         if (args[0].equals("add"))
                         {
                             if (killer_list.contains(obj_user))
                             {
-                                bot.sendGroupMsg(groupId,"Already permitted.",false);
+                                bot.sendGroupMsg(group_id,"Already permitted.",false);
                                 return MESSAGE_BLOCK;
                             }
                             killer_list.add(obj_user);
-                            bot.sendGroupMsg(groupId,"Success.",false);
+                            bot.sendGroupMsg(group_id,"Success.",false);
                         }
                         else
                         {
                             if (!killer_list.contains(obj_user))
                             {
-                                bot.sendGroupMsg(groupId,"Permitted user not found.",false);
+                                bot.sendGroupMsg(group_id,"Permitted user not found.",false);
                                 return MESSAGE_BLOCK;
                             }
                             killer_list.remove(obj_user);
-                            bot.sendGroupMsg(groupId,"Success.",false);
+                            bot.sendGroupMsg(group_id,"Success.",false);
                         }
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId,"incorrect argument(s) input",false);
+                        bot.sendGroupMsg(group_id,"incorrect argument(s) input",false);
                     }
 
                     return MESSAGE_BLOCK;
                 }
                 else if (args[1].equals("set"))
                 {
-                    if (userId != this.getAdmin() && !killer_list.contains(userId))
+                    if (user_id != this.getAdmin() && !killer_list.contains(user_id))
                     {
-                        bot.sendGroupMsg(groupId,"Permission denied, authorization limited.",false);
+                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
                     this.level = args[2];
@@ -331,9 +331,9 @@ public class KillMotherPlugin extends A3Plugin
                 }
                 else if (args[1].equals("save"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendGroupMsg(groupId,"Permission denied, authorization limited.",false);
+                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -347,19 +347,19 @@ public class KillMotherPlugin extends A3Plugin
                         objectOutputStream.writeObject(killer_list);
                         objectOutputStream.close();
                         outputStream.close();
-                        bot.sendGroupMsg(groupId,"Killer data saved successfully.",false);
+                        bot.sendGroupMsg(group_id,"Killer data saved successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args[1].equals("load"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendGroupMsg(groupId,"Permission denied, authorization limited.",false);
+                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
@@ -368,7 +368,7 @@ public class KillMotherPlugin extends A3Plugin
                         File killer_data = new File(this.getDataPath());
                         if (!killer_data.exists())
                         {
-                            bot.sendGroupMsg(groupId, "Killer data not existed.", false);
+                            bot.sendGroupMsg(group_id, "Killer data not existed.", false);
                             return MESSAGE_BLOCK;
                         }
 
@@ -377,27 +377,27 @@ public class KillMotherPlugin extends A3Plugin
                         killer_list = (List) objectInputStream.readObject();
                         objectInputStream.close();
                         inputStream.close();
-                        bot.sendGroupMsg(groupId,"Killer data loaded successfully.",false);
+                        bot.sendGroupMsg(group_id,"Killer data loaded successfully.",false);
                     }
                     catch (Exception e)
                     {
                         e.printStackTrace();
-                        bot.sendGroupMsg(groupId, "Unexpected errors occurred, check terminal for more info.", false);
+                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
                     }
                 }
                 else if (args[1].equals("clear"))
                 {
-                    if (userId != this.getAdmin() && !this.getPermissionList().contains(userId))
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
                     {
-                        bot.sendGroupMsg(groupId,"Permission denied, authorization limited.",false);
+                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
                         return MESSAGE_BLOCK;
                     }
 
                     killer_list.clear();
-                    bot.sendGroupMsg(groupId, "Killer data cleared.", false);
+                    bot.sendGroupMsg(group_id, "Killer data cleared.", false);
                 }
                 else
-                    bot.sendGroupMsg(groupId, help_info, false);
+                    bot.sendGroupMsg(group_id, help_info, false);
 
                 return MESSAGE_BLOCK;
             }
