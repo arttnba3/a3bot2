@@ -107,7 +107,7 @@ admin = 1145141919
 
 For better experience, I've built some plugins for you to use:
 
-- plugin system 1.1.5: a plugin to control all the plugins, all messages will(and shall) be dealt by it **with a simple parser**. command: `/plugin`
+- plugin system 1.2: a plugin to control all the plugins, all messages will(and shall) be dealt by it **with a simple parser**. command: `/plugin`
 - repeater plugin 1.0: to simply repeat the message that was sent continuously for more than one time in a group
 - anti-withdraw plugin 1.0: a plugin to resend the message that was withdrawn by someone
 - rainbow-fart plugin 1.0: to simply get a sentence from [https://chp.shadiao.app](https://chp.shadiao.app) by the command `/rainbow`
