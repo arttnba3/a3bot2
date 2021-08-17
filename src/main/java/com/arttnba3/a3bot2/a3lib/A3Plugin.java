@@ -6,6 +6,7 @@ import onebot.OnebotEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -21,7 +22,7 @@ public class A3Plugin extends BotPlugin
     String plugin_name;
 
     // define the command that would be used for this plugin, which shall not be more than one type
-    String command = null;
+    List<String> command = null;
 
     // args analysed by plugin system
     String[] args;
@@ -37,6 +38,11 @@ public class A3Plugin extends BotPlugin
 
     // the permitted men
     List<Long> permission_list;
+
+    public A3Plugin()
+    {
+        command = new ArrayList<String>();
+    }
 
     // function which deal with private message
     @Override
@@ -63,9 +69,9 @@ public class A3Plugin extends BotPlugin
         return plugin_name;
     }
 
-    public String getCommand()
+    public String getCommand(int index)
     {
-        return command;
+        return command.get(index);
     }
 
     public String[] getArgs()
@@ -93,14 +99,19 @@ public class A3Plugin extends BotPlugin
         return is_enabled;
     }
 
+    public boolean containsCommand(String command)
+    {
+        return this.command.contains(command);
+    }
+
+    public void addCommand(String command)
+    {
+        this.command.add(command);
+    }
+
     public void setEnabled(boolean is_enabled)
     {
         this.is_enabled = is_enabled;
-    }
-
-    public void setCommand(String command)
-    {
-        this.command = command;
     }
 
     public void setArgs(String[] args)

@@ -37,7 +37,7 @@ public class KillMotherPlugin extends A3Plugin
     public KillMotherPlugin()
     {
         this.setPluginName("KillMotherPlugin");
-        this.setCommand("/nmsl");
+        this.addCommand("/nmsl");
         this.setDataPath("data/nmsl_killer_list.data");
         file = new File(this.getDataPath());
         try

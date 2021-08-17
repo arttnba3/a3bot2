@@ -1,14 +1,11 @@
 package com.arttnba3.a3bot2.plugin;
 
 import com.arttnba3.a3bot2.a3lib.A3Plugin;
-import kotlin.KotlinNullPointerException;
 import net.lz1998.pbbot.bot.Bot;
 import net.lz1998.pbbot.bot.BotPlugin;
 import onebot.OnebotEvent;
-import org.apache.tomcat.util.buf.StringUtils;
 import org.ini4j.Wini;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.helper.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -87,6 +84,7 @@ public class PluginSystemPlugin extends BotPlugin
         }
     }
 
+    // dealing with the specific command "/plugin" for the plugin system
     public int pluginSystemCommander(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent group_event, @NotNull OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
     {
         String reply_msg = null;
@@ -256,7 +254,7 @@ public class PluginSystemPlugin extends BotPlugin
                 {
                     File permission_data = new File("data/permission.data");
                     if (!permission_data.exists())
-                        return messageSender(bot, group_event, private_event, type, "permission data not existed.");
+                        return messageSender(bot, group_event, private_event, type, "Permission data not existed.");
 
                     InputStream inputStream = new FileInputStream(permission_data);
                     ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
@@ -317,7 +315,7 @@ public class PluginSystemPlugin extends BotPlugin
         return MESSAGE_BLOCK;
     }
 
-    public int analyseArgs(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent group_event, @NotNull OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
+    public int analyseArgs(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
     {
         A3Plugin plugin = null;
         boolean command_available = false;
@@ -328,7 +326,7 @@ public class PluginSystemPlugin extends BotPlugin
         for (int i = 0; i < plugin_list.size(); i++)
         {
             plugin = plugin_list.get(i);
-            if (args[0].equals(plugin.getCommand()) && plugin.isEnabled())
+            if (plugin.containsCommand(args[0]) && plugin.isEnabled())
             {
                 plugin.setArgs(args);
                 plugin.setAdmin(admin);

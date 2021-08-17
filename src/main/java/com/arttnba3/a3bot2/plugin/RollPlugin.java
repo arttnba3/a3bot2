@@ -1,13 +1,11 @@
 package com.arttnba3.a3bot2.plugin;
 
 import com.arttnba3.a3bot2.a3lib.A3Plugin;
-import kotlin.Pair;
 import net.lz1998.pbbot.bot.Bot;
 import onebot.OnebotEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -30,7 +28,7 @@ public class RollPlugin extends A3Plugin
 
     public RollPlugin()
     {
-        this.setCommand("/roll");
+        this.addCommand("/roll");
         this.setPluginName("RollPlugin");
         roll_group_map = new HashMap<>();
         random = new Random();

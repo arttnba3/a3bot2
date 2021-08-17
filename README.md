@@ -114,6 +114,7 @@ For better experience, I've built some plugins for you to use:
 - mother-killing plugin 1.0: to simply get a sentence from [https://nmsl.shadiao.app](https://chp.shadiao.app) by the command `/nmsl`
 - sign-in plugin 1.0: to simply record the sign-in in order by the command `/signin`
 - echo plugin 1.0: to simply echo a sentence with command `/echo` (only for admin temporarily)
+- teach plugin 1.0: to teach the bot "how to talk" with commands `/teach` and `/delete`
 - message walls 1.0: a plugin to intercepts all the message which may not be dealt by the plugin system
 - ...
 
@@ -136,7 +137,7 @@ public class DemoPlugin extends A3Plugin
 {
     public DemoPlugin()
     {
-        this.setCommand("/demo");
+        this.addCommand("/demo");
         this.setPluginName("DemoPlugin");
     }
 

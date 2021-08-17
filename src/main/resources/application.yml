@@ -2,6 +2,7 @@ spring:
   bot:
     plugin-list:
       - com.arttnba3.a3bot2.plugin.AntiWithdrawPlugin
+      - com.arttnba3.a3bot2.plugin.TeachMsgPlugin
       - com.arttnba3.a3bot2.plugin.PluginSystemPlugin
       - com.arttnba3.a3bot2.plugin.RepeaterPlugin
       - com.arttnba3.a3bot2.plugin.MessageWallPlugin

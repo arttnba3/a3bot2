@@ -11,7 +11,7 @@ public class EchoPlugin extends A3Plugin
 {
     public EchoPlugin()
     {
-        this.setCommand("/echo");
+        this.addCommand("/echo");
         this.setPluginName("EchoPlugin");
     }
 

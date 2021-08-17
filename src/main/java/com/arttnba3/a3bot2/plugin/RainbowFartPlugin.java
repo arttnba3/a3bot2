@@ -24,7 +24,7 @@ public class RainbowFartPlugin extends A3Plugin
 
     public RainbowFartPlugin()
     {
-        this.setCommand("/rainbow");
+        this.addCommand("/rainbow");
         this.setPluginName("RainbowFartPlugin");
     }
 

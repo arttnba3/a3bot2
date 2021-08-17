@@ -3,8 +3,6 @@ package com.arttnba3.a3bot2.plugin;
 import com.arttnba3.a3bot2.a3lib.A3Plugin;
 import kotlin.Pair;
 import net.lz1998.pbbot.bot.Bot;
-import net.lz1998.pbbot.utils.Msg;
-import onebot.OnebotBase;
 import onebot.OnebotEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -32,7 +30,7 @@ public class SignInPlugin extends A3Plugin
 
     public SignInPlugin()
     {
-        this.setCommand("/signin");
+        this.addCommand("/signin");
         this.setPluginName("SignInPlugin");
         this.setDataPath("data/sign_in_list.data");
         sign_in_data = new HashMap<>();
