@@ -84,8 +84,42 @@ public class PluginSystemPlugin extends BotPlugin
         }
     }
 
+    @Override
+    public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
+    {
+        String msg = event.getRawMessage();
+
+        String[] args = messageParser(msg);//msg.split(" ");
+        if (args == null) // failed to analyze message into available args
+            return MESSAGE_IGNORE;
+
+        // not the command
+        if (args[0].charAt(0) != '/')
+            return MESSAGE_IGNORE;
+
+        // analyse command for other plugins
+        return analyseArgs(bot, event, null, TYPE_MESSAGE_GROUP, args);
+    }
+
+    @Override
+    public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
+    {
+        String msg = event.getRawMessage();
+
+        String[] args = messageParser(msg);//msg.split(" ");
+        if (args == null) // failed to analyze message into available args
+            return MESSAGE_IGNORE;
+
+        // not the command
+        if (args[0].charAt(0) != '/')
+            return MESSAGE_IGNORE;
+
+        // analyse command for other plugins
+        return analyseArgs(bot, null, event, TYPE_MESSAGE_PRIVATE, args);
+    }
+
     // dealing with the specific command "/plugin" for the plugin system
-    public int pluginSystemCommander(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent group_event, @NotNull OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
+    public int pluginSystemCommander(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
     {
         String reply_msg = null;
         long user_id = (type == TYPE_MESSAGE_GROUP) ? group_event.getUserId() : private_event.getUserId();
@@ -351,40 +385,6 @@ public class PluginSystemPlugin extends BotPlugin
         }
 
         return MESSAGE_BLOCK;
-    }
-
-    @Override
-    public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
-    {
-        String msg = event.getRawMessage();
-
-        String[] args = messageParser(msg);//msg.split(" ");
-        if (args == null) // failed to analyze message into available args
-            return MESSAGE_IGNORE;
-
-        // not the command
-        if (args[0].charAt(0) != '/')
-            return MESSAGE_IGNORE;
-
-        // analyse command for other plugins
-        return analyseArgs(bot, event, null, TYPE_MESSAGE_GROUP, args);
-    }
-
-    @Override
-    public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
-    {
-        String msg = event.getRawMessage();
-
-        String[] args = messageParser(msg);//msg.split(" ");
-        if (args == null) // failed to analyze message into available args
-            return MESSAGE_IGNORE;
-
-        // not the command
-        if (args[0].charAt(0) != '/')
-            return MESSAGE_IGNORE;
-
-        // analyse command for other plugins
-        return analyseArgs(bot, null, event, TYPE_MESSAGE_PRIVATE, args);
     }
 
     public String[] messageParser(String msg)
