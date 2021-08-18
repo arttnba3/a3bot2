@@ -32,22 +32,14 @@ public class RainbowFartPlugin extends A3Plugin
     public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
     {
         long user_id = event.getUserId();
-        String[] args = this.getArgs();
-
-        bot.sendPrivateMsg(user_id, getRainbow(user_id, args), false);
-
+        bot.sendPrivateMsg(user_id, getRainbow(user_id, this.getArgs()), false);
         return MESSAGE_BLOCK;
     }
 
     @Override
     public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
-        long group_id = event.getGroupId();
-        long user_id = event.getUserId();
-        String[] args = this.getArgs();
-
-        bot.sendGroupMsg(group_id, getRainbow(user_id, args), false);
-
+        bot.sendGroupMsg(event.getGroupId(), getRainbow(event.getUserId(), this.getArgs()), false);
         return MESSAGE_BLOCK;
     }
 
@@ -70,9 +62,9 @@ public class RainbowFartPlugin extends A3Plugin
             catch (Exception e)
             {
                 e.printStackTrace();
+                return "Unexpected errors occurred, check terminal for more info.";
             }
         }
-
         else
         {
             if (args[1].equals("set"))

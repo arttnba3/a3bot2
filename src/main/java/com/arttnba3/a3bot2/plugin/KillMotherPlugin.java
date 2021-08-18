@@ -62,348 +62,149 @@ public class KillMotherPlugin extends A3Plugin
     @Override
     public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
     {
-        if (!this.isEnabled())
-            return MESSAGE_IGNORE;
-        // 获取 消息内容 群号 发送者QQ
-        String msg = event.getRawMessage();
-        String[] args = this.getArgs();
         long user_id = event.getUserId();
-
-        if (args[0].equals("/nmsl"))
-        {
-            if (user_id != this.getAdmin() && !killer_list.contains(user_id))
-            {
-                bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
-                return MESSAGE_BLOCK;
-            }
-            if (args.length == 1)
-            {
-                try
-                {
-                    URL url = new URL(request_url + level);
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                    httpURLConnection.setDoInput(true);
-                    httpURLConnection.setRequestMethod("GET");
-                    httpURLConnection.connect();
-
-                    String mother_killing_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8")).readLine();
-                    bot.sendPrivateMsg(user_id, mother_killing_msg, false);
-
-                    httpURLConnection.disconnect();
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                return MESSAGE_BLOCK;
-            }
-            else if (args.length < 3)
-            {
-                bot.sendPrivateMsg(user_id, help_info, false);
-                return MESSAGE_BLOCK;
-            }
-            else
-            {
-                if (args[1].equals("add") || args[1].equals("del"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    try
-                    {
-                        long obj_user = Long.valueOf(args[2]);//  /nmsl add user_id
-
-                        if (args[0].equals("add"))
-                        {
-                            if (killer_list.contains(obj_user))
-                            {
-                                bot.sendPrivateMsg(user_id,"Already permitted.",false);
-                                return MESSAGE_BLOCK;
-                            }
-                            killer_list.add(obj_user);
-                            bot.sendPrivateMsg(user_id,"Success.",false);
-                        }
-                        else
-                        {
-                            if (!killer_list.contains(obj_user))
-                            {
-                                bot.sendPrivateMsg(user_id,"Permitted user not found.",false);
-                                return MESSAGE_BLOCK;
-                            }
-                            killer_list.remove(obj_user);
-                            bot.sendPrivateMsg(user_id,"Success.",false);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        bot.sendPrivateMsg(user_id,"incorrect argument(s) input",false);
-                    }
-
-                    return MESSAGE_BLOCK;
-                }
-                else if (args[1].equals("set"))
-                {
-                    if (user_id != this.getAdmin() && !killer_list.contains(user_id))
-                    {
-                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-                    this.level = args[2];
-                    return MESSAGE_BLOCK;
-                }
-                else if (args[1].equals("save"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    try
-                    {
-                        File killer_data = new File(this.getDataPath());
-                        if (!killer_data.exists())
-                            killer_data.createNewFile();
-                        OutputStream outputStream = new FileOutputStream(killer_data);
-                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                        objectOutputStream.writeObject(killer_list);
-                        objectOutputStream.close();
-                        outputStream.close();
-                        bot.sendPrivateMsg(user_id,"Killer data saved successfully.",false);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
-                    }
-                }
-                else if (args[1].equals("load"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    try
-                    {
-                        File killer_data = new File(this.getDataPath());
-                        if (!killer_data.exists())
-                        {
-                            bot.sendPrivateMsg(user_id, "Killer data not existed.", false);
-                            return MESSAGE_BLOCK;
-                        }
-
-                        InputStream inputStream = new FileInputStream(killer_data);
-                        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                        killer_list = (List) objectInputStream.readObject();
-                        objectInputStream.close();
-                        inputStream.close();
-                        bot.sendPrivateMsg(user_id,"Killer data loaded successfully.",false);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        bot.sendPrivateMsg(user_id, "Unexpected errors occurred, check terminal for more info.", false);
-                    }
-                }
-                else if (args[1].equals("clear"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendPrivateMsg(user_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    killer_list.clear();
-                    bot.sendPrivateMsg(user_id, "Killer data cleared.", false);
-                }
-                else
-                    bot.sendPrivateMsg(user_id, help_info, false);
-
-                return MESSAGE_BLOCK;
-            }
-        }
-
-        return MESSAGE_IGNORE;
+        bot.sendPrivateMsg(user_id, getKillingMsg(user_id, this.getArgs()), false);
+        return MESSAGE_BLOCK;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
-        if (!this.isEnabled())
-            return MESSAGE_IGNORE;
+        bot.sendGroupMsg(event.getGroupId(), getKillingMsg(event.getUserId(), this.getArgs()), false);
+        return MESSAGE_BLOCK;
+    }
 
-        // 获取 消息内容 群号 发送者QQ
-        String msg = event.getRawMessage();
-        String[] args = this.getArgs();
-        long group_id = event.getGroupId();
-        long user_id = event.getUserId();
+    public String getKillingMsg(long user_id, String[] args)
+    {
+        String mother_killing_msg;
 
-        if (args[0].equals("/nmsl"))
+        if (user_id != this.getAdmin() && !getPermissionList().contains(user_id) &&!killer_list.contains(user_id))
+            return "Permission denied, authorization limited.";
+
+        if (args.length == 1)
         {
-            if (user_id != this.getAdmin() && !killer_list.contains(user_id))
+            try
             {
-                bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
-                return MESSAGE_BLOCK;
+                URL url = new URL(request_url + level);
+                HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+                httpURLConnection.setDoInput(true);
+                httpURLConnection.setRequestMethod("GET");
+                httpURLConnection.connect();
+
+                mother_killing_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8")).readLine();
+                httpURLConnection.disconnect();
+                return mother_killing_msg;
             }
-            if (args.length == 1)
+            catch (Exception e)
             {
-                try
-                {
-                    URL url = new URL(request_url + level);
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                    httpURLConnection.setDoInput(true);
-                    httpURLConnection.setRequestMethod("GET");
-                    httpURLConnection.connect();
-
-                    String mother_killing_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "UTF-8")).readLine();
-                    bot.sendGroupMsg(group_id, mother_killing_msg, false);
-
-                    httpURLConnection.disconnect();
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                return MESSAGE_BLOCK;
-            }
-            else if (args.length < 3)
-            {
-                bot.sendGroupMsg(group_id, help_info, false);
-                return MESSAGE_BLOCK;
-            }
-            else
-            {
-                if (args[1].equals("add") || args[1].equals("del"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    try
-                    {
-                        long obj_user = Long.valueOf(args[2]);//  /nmsl add user_id
-
-                        if (args[0].equals("add"))
-                        {
-                            if (killer_list.contains(obj_user))
-                            {
-                                bot.sendGroupMsg(group_id,"Already permitted.",false);
-                                return MESSAGE_BLOCK;
-                            }
-                            killer_list.add(obj_user);
-                            bot.sendGroupMsg(group_id,"Success.",false);
-                        }
-                        else
-                        {
-                            if (!killer_list.contains(obj_user))
-                            {
-                                bot.sendGroupMsg(group_id,"Permitted user not found.",false);
-                                return MESSAGE_BLOCK;
-                            }
-                            killer_list.remove(obj_user);
-                            bot.sendGroupMsg(group_id,"Success.",false);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        bot.sendGroupMsg(group_id,"incorrect argument(s) input",false);
-                    }
-
-                    return MESSAGE_BLOCK;
-                }
-                else if (args[1].equals("set"))
-                {
-                    if (user_id != this.getAdmin() && !killer_list.contains(user_id))
-                    {
-                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-                    this.level = args[2];
-                    return MESSAGE_BLOCK;
-                }
-                else if (args[1].equals("save"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    try
-                    {
-                        File killer_data = new File(this.getDataPath());
-                        if (!killer_data.exists())
-                            killer_data.createNewFile();
-                        OutputStream outputStream = new FileOutputStream(killer_data);
-                        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                        objectOutputStream.writeObject(killer_list);
-                        objectOutputStream.close();
-                        outputStream.close();
-                        bot.sendGroupMsg(group_id,"Killer data saved successfully.",false);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
-                    }
-                }
-                else if (args[1].equals("load"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    try
-                    {
-                        File killer_data = new File(this.getDataPath());
-                        if (!killer_data.exists())
-                        {
-                            bot.sendGroupMsg(group_id, "Killer data not existed.", false);
-                            return MESSAGE_BLOCK;
-                        }
-
-                        InputStream inputStream = new FileInputStream(killer_data);
-                        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                        killer_list = (List) objectInputStream.readObject();
-                        objectInputStream.close();
-                        inputStream.close();
-                        bot.sendGroupMsg(group_id,"Killer data loaded successfully.",false);
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                        bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
-                    }
-                }
-                else if (args[1].equals("clear"))
-                {
-                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    {
-                        bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    killer_list.clear();
-                    bot.sendGroupMsg(group_id, "Killer data cleared.", false);
-                }
-                else
-                    bot.sendGroupMsg(group_id, help_info, false);
-
-                return MESSAGE_BLOCK;
+                e.printStackTrace();
+                return "Inner error, see the terminal for more infomation.";
             }
         }
+        else if (args.length < 3)
+            return help_info;
+        else
+        {
+            if (args[1].equals("add") || args[1].equals("del"))
+            {
+                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
+                    return "Permission denied, authorization limited.";
 
-        return MESSAGE_IGNORE;
+                try
+                {
+                    long obj_user = Long.valueOf(args[2]);//  /nmsl add user_id
+
+                    if (args[0].equals("add"))
+                    {
+                        if (killer_list.contains(obj_user))
+                            return "Already permitted.";
+
+                        killer_list.add(obj_user);
+                        return "Success.";
+                    }
+                    else
+                    {
+                        if (!killer_list.contains(obj_user))
+                            return "Permitted user not found.";
+
+                        killer_list.remove(obj_user);
+                        return "Success.";
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return "Incorrect argument(s) input";
+                }
+
+            }
+            else if (args[1].equals("set"))
+            {
+                if (user_id != this.getAdmin() && !killer_list.contains(user_id))
+                    return "Permission denied, authorization limited.";
+
+                this.level = args[2];
+                return "Success.";
+            }
+            else if (args[1].equals("save"))
+            {
+                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
+                return "Permission denied, authorization limited.";
+
+                try
+                {
+                    File killer_data = new File(this.getDataPath());
+                    if (!killer_data.exists())
+                        killer_data.createNewFile();
+                    OutputStream outputStream = new FileOutputStream(killer_data);
+                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+                    objectOutputStream.writeObject(killer_list);
+                    objectOutputStream.close();
+                    outputStream.close();
+                    return "Killer data saved successfully.";
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return "Unexpected errors occurred, check terminal for more info.";
+                }
+            }
+            else if (args[1].equals("load"))
+            {
+                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
+                return "Permission denied, authorization limited.";
+
+                try
+                {
+                    File killer_data = new File(this.getDataPath());
+                    if (!killer_data.exists())
+                    return "Killer data not existed.";
+
+                    InputStream inputStream = new FileInputStream(killer_data);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+                    killer_list = (List) objectInputStream.readObject();
+                    objectInputStream.close();
+                    inputStream.close();
+                    return "Killer data loaded successfully.";
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return "Unexpected errors occurred, check terminal for more info.";
+                }
+            }
+            else if (args[1].equals("clear"))
+            {
+                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
+                return "Permission denied, authorization limited.";
+
+                killer_list.clear();
+                return "Killer data cleared.";
+            }
+            else
+                return help_info;
+        }
     }
 
 }
