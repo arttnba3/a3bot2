@@ -394,7 +394,7 @@ public class PluginSystemPlugin extends BotPlugin
         boolean backslash = false, str_start = false, quotation = false, is_space = false;
         char current;
 
-        for (int i = 0, len = msg.length(), each = 0; i < len; i++)
+        for (int i = 0, len = msg.length(); i < len; i++)
         {
             current = msg.charAt(i);
             if (backslash)
@@ -442,7 +442,6 @@ public class PluginSystemPlugin extends BotPlugin
                 }
 
                 args.add(per_arg.toString());
-                //System.out.println(String.valueOf(args.size()) + "A: " + args.get(args.size() - 1));
                 per_arg = new StringBuilder();
                 str_start = false;
                 quotation = false;
@@ -456,7 +455,6 @@ public class PluginSystemPlugin extends BotPlugin
                 if (str_start && !quotation)
                 {
                     args.add(per_arg.toString());
-                    //System.out.println(String.valueOf(args.size()) + "B: " + args.get(args.size() - 1));
                     per_arg = new StringBuilder();
                     str_start = false;
                     continue;
@@ -471,7 +469,6 @@ public class PluginSystemPlugin extends BotPlugin
 
         if (per_arg.length() > 0)
             args.add(per_arg.toString());
-        //System.out.println(String.valueOf(args.size()) + "C: " + args.get(args.size() - 1));
 
         return args.toArray(new String[args.size()]);
     }

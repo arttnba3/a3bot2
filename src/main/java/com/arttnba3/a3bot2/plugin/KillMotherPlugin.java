@@ -150,7 +150,7 @@ public class KillMotherPlugin extends A3Plugin
             else if (args[1].equals("save"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                return "Permission denied, authorization limited.";
+                    return "Permission denied, authorization limited.";
 
                 try
                 {
@@ -173,20 +173,20 @@ public class KillMotherPlugin extends A3Plugin
             else if (args[1].equals("load"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                return "Permission denied, authorization limited.";
+                    return "Permission denied, authorization limited.";
 
                 try
                 {
                     File killer_data = new File(this.getDataPath());
                     if (!killer_data.exists())
-                    return "Killer data not existed.";
+                        return "Killer data not existed.";
 
                     InputStream inputStream = new FileInputStream(killer_data);
                     ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
                     killer_list = (List) objectInputStream.readObject();
                     objectInputStream.close();
                     inputStream.close();
-                    return "Killer data loaded successfully.";
+                        return "Killer data loaded successfully.";
                 }
                 catch (Exception e)
                 {
@@ -197,10 +197,10 @@ public class KillMotherPlugin extends A3Plugin
             else if (args[1].equals("clear"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                return "Permission denied, authorization limited.";
+                    return "Permission denied, authorization limited.";
 
                 killer_list.clear();
-                return "Killer data cleared.";
+                    return "Killer data cleared.";
             }
             else
                 return help_info;
