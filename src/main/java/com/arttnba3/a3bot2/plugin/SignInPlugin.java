@@ -79,10 +79,11 @@ public class SignInPlugin extends A3Plugin
         long group_id = event.getGroupId();
         long user_id = event.getUserId();
         String[] args = this.getArgs();
-        Pair<ArrayList<String>, HashMap<Long, Long>> per_group = null;
-        ArrayList<String> per_group_msg = null;
-        HashMap<Long, Long> per_group_list = null;
-        boolean signed = false;
+
+        Pair<ArrayList<String>, HashMap<Long, Long>> per_group;
+        ArrayList<String> per_group_msg;
+        HashMap<Long, Long> per_group_list;
+        boolean signed;
         long signed_time, duration, per_hour, per_minute, per_second;
         int rank;
 

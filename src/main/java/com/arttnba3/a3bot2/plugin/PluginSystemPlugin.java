@@ -181,10 +181,10 @@ public class PluginSystemPlugin extends BotPlugin
                 else
                 {
                     if (!plugin.isEnabled())
-                        return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] already loaded.");
+                        return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] already unloaded.");
 
                     plugin.setEnabled(false);
-                    return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] loaded successfully.");
+                    return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] unloaded successfully.");
                 }
             }
 
