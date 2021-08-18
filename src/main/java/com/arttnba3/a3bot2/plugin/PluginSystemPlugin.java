@@ -80,7 +80,7 @@ public class PluginSystemPlugin extends BotPlugin
         catch (Exception e)
         {
             e.printStackTrace();
-            System.out.println("\033[31m\033[1m[x] Unable to initialize permission list, something\'s wrong." + "\033[0m");
+            System.out.println("\033[31m\033[1m[x] Unable to initialize , something\'s wrong." + "\033[0m");
         }
     }
 
@@ -300,7 +300,7 @@ public class PluginSystemPlugin extends BotPlugin
         return messageSender(bot, group_event, private_event, type, reply_msg);
     }
 
-    public int messageSender(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent group_event, @NotNull OnebotEvent.PrivateMessageEvent private_event, int type, String msg)
+    public int messageSender(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String msg)
     {
         switch (type)
         {

@@ -34,54 +34,9 @@ public class RainbowFartPlugin extends A3Plugin
         long user_id = event.getUserId();
         String[] args = this.getArgs();
 
-        if (args.length == 1)
-        {
-            try
-            {
-                URL url = new URL(request_url + level);
-                HttpURLConnection httpURLConnection = (HttpURLConnection)url.openConnection();
-                httpURLConnection.setDoInput(true);
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.connect();
+        bot.sendPrivateMsg(user_id, getRainbow(user_id, args), false);
 
-                String rainbow_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(),"UTF-8")).readLine();
-                bot.sendPrivateMsg(user_id, rainbow_msg,false);
-
-                httpURLConnection.disconnect();
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            return MESSAGE_BLOCK;
-        }
-
-        else
-        {
-            if (args[1].equals("set"))
-            {
-                if (args.length == 2)
-                {
-                    bot.sendPrivateMsg(user_id, help_info, false);
-                    return MESSAGE_BLOCK;
-                }
-
-                if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                {
-                    bot.sendPrivateMsg(user_id, "Permission denied, authorization limited.", false);
-                    return MESSAGE_BLOCK;
-                }
-
-                this.level = args[2];
-                bot.sendPrivateMsg(user_id,"Success.",false);
-                return MESSAGE_BLOCK;
-            }
-            else
-            {
-                bot.sendPrivateMsg(user_id, help_info, false);
-                return MESSAGE_BLOCK;
-            }
-        }
+        return MESSAGE_BLOCK;
     }
 
     @Override
@@ -91,6 +46,13 @@ public class RainbowFartPlugin extends A3Plugin
         long user_id = event.getUserId();
         String[] args = this.getArgs();
 
+        bot.sendGroupMsg(group_id, getRainbow(user_id, args), false);
+
+        return MESSAGE_BLOCK;
+    }
+
+    public String getRainbow(long user_id, String[] args)
+    {
         if (args.length == 1)
         {
             try
@@ -102,15 +64,13 @@ public class RainbowFartPlugin extends A3Plugin
                 httpURLConnection.connect();
 
                 String rainbow_msg = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(),"UTF-8")).readLine();
-                bot.sendGroupMsg(group_id,rainbow_msg,false);
-
                 httpURLConnection.disconnect();
+                return rainbow_msg;
             }
             catch (Exception e)
             {
                 e.printStackTrace();
             }
-            return MESSAGE_BLOCK;
         }
 
         else
@@ -118,26 +78,16 @@ public class RainbowFartPlugin extends A3Plugin
             if (args[1].equals("set"))
             {
                 if (args.length == 2)
-                {
-                    bot.sendGroupMsg(group_id, help_info, false);
-                    return MESSAGE_BLOCK;
-                }
+                    return help_info;
 
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                {
-                    bot.sendGroupMsg(group_id, "Permission denied, authorization limited.", false);
-                    return MESSAGE_BLOCK;
-                }
+                    return  "Permission denied, authorization limited.";
 
                 this.level = args[2];
-                bot.sendGroupMsg(group_id,"Success.",false);
-                return MESSAGE_BLOCK;
+                return  "Success.";
             }
             else
-            {
-                bot.sendGroupMsg(group_id, help_info, false);
-                return MESSAGE_BLOCK;
-            }
+                return help_info;
         }
     }
 }
