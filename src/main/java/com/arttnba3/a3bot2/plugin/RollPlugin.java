@@ -68,7 +68,7 @@ public class RollPlugin extends A3Plugin
     {
         long user_id = event.getUserId();
 
-        bot.sendPrivateMsg(user_id, rollAnalyzer(false, user_id, 0xdeadbeef), false);
+        bot.sendPrivateMsg(user_id, rollAnalyzer(false, user_id, 0xdeadbeef), true);
 
         return MESSAGE_BLOCK;
     }
@@ -79,7 +79,7 @@ public class RollPlugin extends A3Plugin
         long group_id = event.getGroupId();
         long user_id = event.getUserId();
 
-        bot.sendGroupMsg(group_id, rollAnalyzer(true, user_id, group_id), false);
+        bot.sendGroupMsg(group_id, rollAnalyzer(true, user_id, group_id), true);
 
         return MESSAGE_BLOCK;
     }
