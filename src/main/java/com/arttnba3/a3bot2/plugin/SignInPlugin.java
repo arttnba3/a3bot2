@@ -266,7 +266,7 @@ public class SignInPlugin extends A3Plugin
     // messages shall be saved
     public void resetData()
     {
-        if (this.isEnabled())
+        if (!this.isEnabled())
             return;
 
         Pair<ArrayList<String>, ArrayList<Long>> per_group = null;

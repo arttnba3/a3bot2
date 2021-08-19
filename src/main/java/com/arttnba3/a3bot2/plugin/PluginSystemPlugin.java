@@ -76,6 +76,15 @@ public class PluginSystemPlugin extends BotPlugin
             permission_list = (List) objectInputStream.readObject();
             objectInputStream.close();
             inputStream.close();
+
+            /*
+            File status_data = new File("data/plugin_status.data");
+            if (!status_data.exists())
+                return;
+
+            inputStream = new FileInputStream(status_data);
+            objectInputStream = new ObjectInputStream(inputStream);
+             */
         }
         catch (Exception e)
         {
