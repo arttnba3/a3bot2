@@ -67,31 +67,6 @@ spring:
       - com.arttnba3.a3bot2.plugin.PluginSystemPlugin
 ```
 
-A usual plugin shall be a Java class like this:
-
-```java
-public class A3Plugin extends BotPlugin
-{
-    // function which deal with private message
-    @Override
-    public int onPrivateMessage(@NotNull Bot bot, @NotNull OnebotEvent.PrivateMessageEvent event)
-    {
-        /* do something */
-
-        return MESSAGE_BLOCK;
-    }
-
-    // function which deal with group message
-    @Override
-    public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
-    {
-        /* do something */
-
-        return MESSAGE_IGNORE;
-    }
-}
-```
-
 ### *plugin-system plugin
 
 For better use, I've built an inner plugin system ```PluginSystemPlugin``` to control all the plugins

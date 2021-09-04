@@ -39,6 +39,7 @@ public class A3Plugin extends A3PluginWrapper
 
     public A3Plugin()
     {
+        this.setPluginName("A3Plugin");
         command = new ArrayList<String>();
     }
 
