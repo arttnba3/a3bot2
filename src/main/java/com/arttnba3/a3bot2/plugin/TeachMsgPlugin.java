@@ -13,6 +13,7 @@ import java.util.Map;
 public class TeachMsgPlugin extends A3Plugin
 {
     Map<String, String> teach_info;
+    int TYPE_SAVE = 1, TYPE_LOAD = 2, TYPE_CLEAR = 3, TYPE_UNDEFINE = 0;
     String help_info = "教学插件~来教bot说话吧~\n"
             + "用法：\n"
             + "/teach {ask} {reply}\n"
@@ -24,7 +25,9 @@ public class TeachMsgPlugin extends A3Plugin
         this.addCommand("/teach");
         this.addCommand("/delete");
         this.setPluginName("TeachMsgPlugin");
-        this.teach_info = new HashMap<String, String>();
+        this.setDataPath("data/teach.data");
+        Object object = this.readData(this.getDataPath());
+        teach_info = (object != null ? (HashMap) object : new HashMap<String, String>());
     }
 
     public String getTeachMsg(String msg)
@@ -42,7 +45,36 @@ public class TeachMsgPlugin extends A3Plugin
         return (teach_info.remove(msg) == null) ? false : true;
     }
 
-    public String argsAnalyzer(String[] args)
+    public String dataManager(int type)
+    {
+        if (type == TYPE_SAVE)
+        {
+            if (this.saveData(this.teach_info, this.getDataPath()))
+                return "数据保存成功 OvO";
+            else
+                return "出现了一些问题，数据没办法保存呐 >꒫<";
+        }
+        else if (type == TYPE_LOAD)
+        {
+            Object object = this.readData(this.getDataPath());
+            if (object != null)
+            {
+                this.teach_info = (HashMap<String, String>) object;
+                return "数据恢复成功 > <";
+            }
+            else
+                return "出现了一些问题，数据没办法载入呐 >꒫<";
+        }
+        else if (type == TYPE_CLEAR)
+        {
+            this.teach_info.clear();
+            return "数据清除成功 > <";
+        }
+
+        return "Invalid type, inner error.";
+    }
+
+    public String argsAnalyzer(String[] args, long user_id)
     {
         if (args == null)
             return null;
@@ -50,7 +82,16 @@ public class TeachMsgPlugin extends A3Plugin
         if (args[0].equals("/teach"))
         {
             if (args.length < 3)
+            {
+                int type;
+                if ((type = (args[1].equals("save")?TYPE_SAVE:(args[1].equals("load")?TYPE_LOAD:(args[1].equals("clear")?TYPE_CLEAR:TYPE_UNDEFINE)))) != TYPE_UNDEFINE)
+                    if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
+                        return this.MSG_PERMISSION_DENIED;
+                    else
+                        return this.dataManager(type);
+
                 return help_info;
+            }
 
             addTeachMsg(args[1], args[2]);
             return "呐，我学会了哟，你呢w";
@@ -76,7 +117,8 @@ public class TeachMsgPlugin extends A3Plugin
             return MESSAGE_IGNORE;
 
         long group_id = event.getGroupId();
-        String msg = argsAnalyzer(getArgs());
+        long user_id = event.getUserId();
+        String msg = argsAnalyzer(getArgs(), user_id);
         this.setArgs(null);
 
         if (msg == null)
@@ -96,7 +138,7 @@ public class TeachMsgPlugin extends A3Plugin
             return MESSAGE_IGNORE;
 
         long user_id = event.getUserId();
-        String msg = argsAnalyzer(getArgs());
+        String msg = argsAnalyzer(getArgs(), user_id);
         this.setArgs(null);
 
         if (msg == null)

@@ -22,7 +22,7 @@ public class EchoPlugin extends A3Plugin
         String[] args = this.getArgs();
 
         if (user_id != getAdmin())
-            bot.sendPrivateMsg(user_id, "Permission denied, authorization limited.", false);
+            bot.sendPrivateMsg(user_id, this.MSG_PERMISSION_DENIED, false);
         else
             bot.sendPrivateMsg(user_id, args[1], false);
 
@@ -37,7 +37,7 @@ public class EchoPlugin extends A3Plugin
         String[] args = this.getArgs();
 
         if (user_id != getAdmin())
-            bot.sendGroupMsg(group_id, "Permission denied, authorization limited.", false);
+            bot.sendGroupMsg(group_id, this.MSG_PERMISSION_DENIED, false);
         else
             bot.sendGroupMsg(group_id, args[1], false);
 

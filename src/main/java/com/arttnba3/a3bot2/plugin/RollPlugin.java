@@ -30,10 +30,6 @@ public class RollPlugin extends A3Plugin
     int dice_range = 6;
     int boom_probability = 12;
 
-    File file = null;
-    FileInputStream fileInputStream = null;
-    FileOutputStream fileOutputStream = null;
-
     public RollPlugin()
     {
         this.addCommand("/roll");
@@ -41,26 +37,8 @@ public class RollPlugin extends A3Plugin
         this.setDataPath("data/ramdon_item.data");
         roll_group_map = new HashMap<>();
         random = new Random();
-        random_list = new ArrayList();
-
-        file = new File(this.getDataPath());
-        try
-        {
-            if (!file.exists())
-                return ;
-
-            fileInputStream = new FileInputStream(file);
-            fileOutputStream = new FileOutputStream(file,true);
-            InputStream inputStream = new FileInputStream(file);
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            random_list = (ArrayList<String>) objectInputStream.readObject();
-            objectInputStream.close();
-            inputStream.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        Object object = this.readData(this.getDataPath());
+        random_list = (object != null ? (ArrayList<String>) object : new ArrayList<String>());
     }
 
     @Override
@@ -130,7 +108,7 @@ public class RollPlugin extends A3Plugin
                 return help_info;
 
             if (user_id != getAdmin() && !getPermissionList().contains(user_id))
-                return "Permission denied, authorization limited.";
+                return this.MSG_PERMISSION_DENIED;
 
             try
             {
@@ -142,7 +120,7 @@ public class RollPlugin extends A3Plugin
                 else
                     return "Invalid arguments.";
 
-                retn_msg = "Success.";
+                retn_msg = this.MSG_SUCCESS;
             }
             catch (Exception e)
             {
@@ -186,10 +164,10 @@ public class RollPlugin extends A3Plugin
             else if (args[2].equals("clear"))
             {
                 if (user_id != getAdmin() && !getPermissionList().contains(user_id))
-                    return "Permission denied, authorization limited.";
+                    return this.MSG_PERMISSION_DENIED;
 
                 random_list.clear();
-                retn_msg = "Success.";
+                retn_msg = this.MSG_SUCCESS;
             }
             else
                 retn_msg = help_info;
@@ -197,49 +175,26 @@ public class RollPlugin extends A3Plugin
         else if (args[1].equals("save"))
         {
             if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                return "Permission denied, authorization limited.";
+                return this.MSG_PERMISSION_DENIED;
 
-            try
-            {
-                file = new File(this.getDataPath());
-                if (!file.exists())
-                    file.createNewFile();
-                OutputStream outputStream = new FileOutputStream(file);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                objectOutputStream.writeObject(random_list);
-                objectOutputStream.close();
-                outputStream.close();
+            if (this.saveData(random_list, this.getDataPath()))
                 retn_msg = "Random data saved successfully.";
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                return "Unexpected errors occurred, check terminal for more info.";
-            }
+            else
+                retn_msg = this.MSG_ERRORS_OCCUR;
         }
         else if (args[1].equals("load"))
         {
             if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                return "Permission denied, authorization limited.";
+                return this.MSG_PERMISSION_DENIED;
 
-            try
+            Object object = this.readData(this.getDataPath());
+            if (object != null)
             {
-                file = new File(this.getDataPath());
-                if (!file.exists())
-                    return "Random data not existed.";
-
-                InputStream inputStream = new FileInputStream(file);
-                ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                random_list = (ArrayList<String>) objectInputStream.readObject();
-                objectInputStream.close();
-                inputStream.close();
-                return "Random data loaded successfully.";
+                random_list = (ArrayList<String>) object;
+                retn_msg = "Random data loaded successfully.";
             }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                return "Unexpected errors occurred, check terminal for more info.";
-            }
+            else
+                retn_msg = "Unable to load, data not existed or errors occurred.";
         }
         else
             retn_msg = help_info;

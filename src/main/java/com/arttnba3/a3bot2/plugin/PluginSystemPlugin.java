@@ -1,8 +1,8 @@
 package com.arttnba3.a3bot2.plugin;
 
 import com.arttnba3.a3bot2.a3lib.A3Plugin;
+import com.arttnba3.a3bot2.a3lib.A3PluginWrapper;
 import net.lz1998.pbbot.bot.Bot;
-import net.lz1998.pbbot.bot.BotPlugin;
 import onebot.OnebotEvent;
 import org.ini4j.Wini;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class PluginSystemPlugin extends BotPlugin
+public class PluginSystemPlugin extends A3PluginWrapper
 {
     final int TYPE_MESSAGE_GROUP = 0;
     final int TYPE_MESSAGE_PRIVATE = 1;
@@ -41,8 +41,6 @@ public class PluginSystemPlugin extends BotPlugin
 
     long admin;
     List permission_list = new ArrayList<Long>();
-    FileInputStream fileInputStream = null;
-    FileOutputStream fileOutputStream = null;
 
     @Autowired
     private List<A3Plugin> plugin_list;
@@ -67,24 +65,9 @@ public class PluginSystemPlugin extends BotPlugin
             admin = ini.get("config", "admin", int.class);
             System.out.println("\033[32m\033[1m[+] admin: " + String.valueOf(admin) + "\033[0m");
 
-            File permission_data = new File("data/permission.data");
-            if (!permission_data.exists())
-                return ;
-
-            InputStream inputStream = new FileInputStream(permission_data);
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            permission_list = (List) objectInputStream.readObject();
-            objectInputStream.close();
-            inputStream.close();
-
-            /*
-            File status_data = new File("data/plugin_status.data");
-            if (!status_data.exists())
-                return;
-
-            inputStream = new FileInputStream(status_data);
-            objectInputStream = new ObjectInputStream(inputStream);
-             */
+            Object object = readData("data/permission.data");
+            if (object != null)
+                permission_list = (List) object;
         }
         catch (Exception e)
         {
@@ -125,275 +108,6 @@ public class PluginSystemPlugin extends BotPlugin
 
         // analyse command for other plugins
         return analyseArgs(bot, null, event, TYPE_MESSAGE_PRIVATE, args);
-    }
-
-    // dealing with the specific command "/plugin" for the plugin system
-    public int pluginSystemCommander(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
-    {
-        String reply_msg = null;
-        long user_id = (type == TYPE_MESSAGE_GROUP) ? group_event.getUserId() : private_event.getUserId();
-
-        if (args.length == 1)
-        {
-            reply_msg = "当前所启用的插件有：";
-            A3Plugin a3_plugin;
-            for (int i = 0; i < plugin_list.size(); i++)
-            {
-                a3_plugin = plugin_list.get(i);
-                if (a3_plugin.isEnabled())
-                    reply_msg += "\n"+a3_plugin.getPluginName();
-            }
-        }
-        else
-        {
-            if (args[1].toLowerCase().equals("all"))
-            {
-                reply_msg = "当前所启用的插件有：";
-                A3Plugin a3_plugin;
-                for (int i = 0; i < plugin_list.size(); i++)
-                {
-                    a3_plugin = plugin_list.get(i);
-                    if (a3_plugin.isEnabled())
-                        reply_msg  += "\n" + a3_plugin.getPluginName() + (a3_plugin.isEnabled()?"":"（未启用）");
-                }
-            }
-
-            // plugin load & unload system
-            else if (args[1].equals("load") || args[1].equals("unload"))
-            {
-                if(user_id != admin && !permission_list.contains(user_id))
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                if (args.length < 3)
-                    return messageSender(bot, group_event, private_event, type, "Invalid plugin name: (null)");
-
-                String plugin_name = args[2];
-                A3Plugin plugin = null;
-                for (int i = 0; i < plugin_list.size(); i++)
-                    if (plugin_list.get(i).getPluginName().equals(plugin_name))
-                    {
-                        plugin = plugin_list.get(i);
-                        break;
-                    }
-
-                if (plugin == null)
-                    return messageSender(bot, group_event, private_event, type, "Invalid plugin name: " + plugin_name);
-
-                if (args[1].equals("load"))
-                {
-                    if (plugin.isEnabled())
-                        return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] already loaded.");
-
-                    plugin.setEnabled(true);
-                    return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] loaded successfully.");
-                }
-                else
-                {
-                    if (!plugin.isEnabled())
-                        return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] already unloaded.");
-
-                    plugin.setEnabled(false);
-                    return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] unloaded successfully.");
-                }
-            }
-
-            // load and save enable status
-            else if (args[1].equals("enable-save"))
-            {
-                if(user_id != admin)
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                try
-                {
-                    Map plugin_status = new HashMap<String, Boolean>();
-                    A3Plugin plugin = null;
-                    for (int i = 0; i < plugin_list.size(); i++)
-                    {
-                        plugin = plugin_list.get(i);
-                        plugin_status.put(plugin.getPluginName(), plugin.isEnabled());
-                    }
-
-                    File permission_data = new File("data/plugin_status.data");
-                    if (!permission_data.exists())
-                        permission_data.createNewFile();
-                    OutputStream outputStream = new FileOutputStream(permission_data);
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                    objectOutputStream.writeObject(plugin_status);
-                    objectOutputStream.close();
-                    outputStream.close();
-                    reply_msg = "Plugins\'s statuses saved successfully.";
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return messageSender(bot, group_event, private_event, type,  "Unexpected errors occurred, check terminal for more info.");
-                }
-            }
-            else if (args[1].equals("enable-load"))
-            {
-                if(user_id != admin)
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                try
-                {
-                    Map plugin_status;
-                    File permission_data = new File("data/plugin_status.data");
-                    if (!permission_data.exists())
-                        return messageSender(bot, group_event, private_event, type, "statuses data not existed.");
-
-                    InputStream inputStream = new FileInputStream(permission_data);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                    plugin_status = (HashMap) objectInputStream.readObject();
-                    objectInputStream.close();
-                    inputStream.close();
-
-                    A3Plugin plugin = null;
-                    for (int i = 0; i < plugin_list.size(); i++)
-                    {
-                        plugin = plugin_list.get(i);
-                        if (plugin_status.containsKey(plugin.getPluginName()))
-                            plugin.setEnabled((boolean) plugin_status.get(plugin.getPluginName()));
-                    }
-
-                    reply_msg = "Plugins\'s statuses loaded successfully.";
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return messageSender(bot, group_event, private_event, type, "Unexpected errors occurred, check terminal for more info.");
-                }
-            }
-
-            // permission data for plugin system
-            else if (args[1].equals("sys-save"))
-            {
-                if(user_id != admin)
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                try
-                {
-                    File permission_data = new File("data/permission.data");
-                    if (!permission_data.exists())
-                        permission_data.createNewFile();
-                    OutputStream outputStream = new FileOutputStream(permission_data);
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                    objectOutputStream.writeObject(permission_list);
-                    objectOutputStream.close();
-                    outputStream.close();
-                    reply_msg = "Permission data saved successfully.";
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return messageSender(bot, group_event, private_event, type, "Unexpected errors occurred, check terminal for more info.");
-                }
-            }
-            else if (args[1].equals("sys-load"))
-            {
-                if(user_id != admin)
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                try
-                {
-                    File permission_data = new File("data/permission.data");
-                    if (!permission_data.exists())
-                        return messageSender(bot, group_event, private_event, type, "Permission data not existed.");
-
-                    InputStream inputStream = new FileInputStream(permission_data);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                    permission_list = (List) objectInputStream.readObject();
-                    objectInputStream.close();
-                    inputStream.close();
-                    reply_msg = "Permission data loaded successfully.";
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return messageSender(bot, group_event, private_event, type, "Unexpected errors occurred, check terminal for more info.");
-                }
-            }
-            else if (args[1].equals("sys-clear"))
-            {
-                if(user_id != admin)
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                permission_list.clear();
-                reply_msg = "Permision list cleared.";
-            }
-            else if (args[1].equals("sys-init"))
-            {
-                if(user_id != admin)
-                    return messageSender(bot, group_event, private_event, type, "Permission denied. Authorization limited.");
-
-                A3Plugin plugin = null;
-                for (int i = 0; i < plugin_list.size(); i++)
-                {
-                    plugin = plugin_list.get(i);
-                    plugin.setAdmin(admin);
-                    plugin.setPermissionList(permission_list);
-                }
-                reply_msg = "Success.";
-            }
-
-            // others under "/plugin", print help info for it
-            else
-                reply_msg = help_info;
-        }
-
-        return messageSender(bot, group_event, private_event, type, reply_msg);
-    }
-
-    public int messageSender(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String msg)
-    {
-        switch (type)
-        {
-            case TYPE_MESSAGE_GROUP:
-                bot.sendGroupMsg(group_event.getGroupId(), msg, false);
-                break;
-            case TYPE_MESSAGE_PRIVATE:
-                bot.sendPrivateMsg(private_event.getUserId(), msg, false);
-                break;
-        }
-
-        return MESSAGE_BLOCK;
-    }
-
-    public int analyseArgs(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
-    {
-        A3Plugin plugin = null;
-        boolean command_available = false;
-
-        if (args[0].equals("/plugin"))
-            return pluginSystemCommander(bot, group_event, private_event, type, args);
-
-        for (int i = 0; i < plugin_list.size(); i++)
-        {
-            plugin = plugin_list.get(i);
-            if (plugin.containsCommand(args[0]) && plugin.isEnabled())
-            {
-                plugin.setArgs(args);
-                plugin.setAdmin(admin);
-                plugin.setPermissionList(permission_list);
-                command_available = true;
-                break;
-            }
-        }
-
-        if (!command_available)
-            return MESSAGE_IGNORE;
-
-        // call corresponding method to deal with messages
-        switch (type)
-        {
-            case TYPE_MESSAGE_GROUP:
-                plugin.onGroupMessage(bot, group_event);
-                break;
-            case TYPE_MESSAGE_PRIVATE:
-                plugin.onPrivateMessage(bot, private_event);
-                break;
-        }
-
-        return MESSAGE_BLOCK;
     }
 
     public String[] messageParser(String msg)
@@ -482,4 +196,227 @@ public class PluginSystemPlugin extends BotPlugin
         return args.toArray(new String[args.size()]);
     }
 
+    public int analyseArgs(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
+    {
+        A3Plugin plugin = null;
+        boolean command_available = false;
+
+        if (args[0].equals("/plugin"))
+            return pluginSystemCommander(bot, group_event, private_event, type, args);
+
+        for (int i = 0; i < plugin_list.size(); i++)
+        {
+            plugin = plugin_list.get(i);
+            if (plugin.containsCommand(args[0]) && plugin.isEnabled())
+            {
+                plugin.setArgs(args);
+                plugin.setAdmin(admin);
+                plugin.setPermissionList(permission_list);
+                command_available = true;
+                break;
+            }
+        }
+
+        if (!command_available)
+            return MESSAGE_IGNORE;
+
+        // call corresponding method to deal with messages
+        switch (type)
+        {
+            case TYPE_MESSAGE_GROUP:
+                plugin.onGroupMessage(bot, group_event);
+                break;
+            case TYPE_MESSAGE_PRIVATE:
+                plugin.onPrivateMessage(bot, private_event);
+                break;
+        }
+
+        return MESSAGE_BLOCK;
+    }
+
+    // dealing with the specific command "/plugin" for the plugin system
+    public int pluginSystemCommander(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String[] args)
+    {
+        String reply_msg = null;
+        long user_id = (type == TYPE_MESSAGE_GROUP) ? group_event.getUserId() : private_event.getUserId();
+
+        if (args.length == 1)
+        {
+            reply_msg = "当前所启用的插件有：";
+            A3Plugin a3_plugin;
+            for (int i = 0; i < plugin_list.size(); i++)
+            {
+                a3_plugin = plugin_list.get(i);
+                if (a3_plugin.isEnabled())
+                    reply_msg += "\n"+a3_plugin.getPluginName();
+            }
+        }
+        else
+        {
+            if (args[1].toLowerCase().equals("all"))
+            {
+                reply_msg = "当前所启用的插件有：";
+                A3Plugin a3_plugin;
+                for (int i = 0; i < plugin_list.size(); i++)
+                {
+                    a3_plugin = plugin_list.get(i);
+                    if (a3_plugin.isEnabled())
+                        reply_msg  += "\n" + a3_plugin.getPluginName() + (a3_plugin.isEnabled()?"":"（未启用）");
+                }
+            }
+
+            // plugin load & unload system
+            else if (args[1].equals("load") || args[1].equals("unload"))
+            {
+                if(user_id != admin && !permission_list.contains(user_id))
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                if (args.length < 3)
+                    return messageSender(bot, group_event, private_event, type, "Invalid plugin name: (null)");
+
+                String plugin_name = args[2];
+                A3Plugin plugin = null;
+                for (int i = 0; i < plugin_list.size(); i++)
+                    if (plugin_list.get(i).getPluginName().equals(plugin_name))
+                    {
+                        plugin = plugin_list.get(i);
+                        break;
+                    }
+
+                if (plugin == null)
+                    return messageSender(bot, group_event, private_event, type, "Invalid plugin name: " + plugin_name);
+
+                if (args[1].equals("load"))
+                {
+                    if (plugin.isEnabled())
+                        return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] already loaded.");
+
+                    plugin.setEnabled(true);
+                    return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] loaded successfully.");
+                }
+                else
+                {
+                    if (!plugin.isEnabled())
+                        return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] already unloaded.");
+
+                    plugin.setEnabled(false);
+                    return messageSender(bot, group_event, private_event, type, "Plugin: [" + plugin_name + "] unloaded successfully.");
+                }
+            }
+
+            // load and save enable status
+            else if (args[1].equals("enable-save"))
+            {
+                if(user_id != admin)
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                try
+                {
+                    Map plugin_status = new HashMap<String, Boolean>();
+                    A3Plugin plugin = null;
+                    for (int i = 0; i < plugin_list.size(); i++)
+                    {
+                        plugin = plugin_list.get(i);
+                        plugin_status.put(plugin.getPluginName(), plugin.isEnabled());
+                    }
+
+                    if (this.saveData(plugin_status, "data/plugin_status.data"))
+                        reply_msg = "Plugins\'s statuses saved successfully.";
+                    else
+                        reply_msg = this.MSG_ERRORS_OCCUR;
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    return messageSender(bot, group_event, private_event, type,  this.MSG_ERRORS_OCCUR);
+                }
+            }
+            else if (args[1].equals("enable-load"))
+            {
+                if(user_id != admin)
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                Object object = this.readData("data/plugin_status.data");
+                if (object != null)
+                {
+                    Map plugin_status;
+                    plugin_status = (HashMap) object;
+                    A3Plugin plugin = null;
+                    for (int i = 0; i < plugin_list.size(); i++)
+                    {
+                        plugin = plugin_list.get(i);
+                        if (plugin_status.containsKey(plugin.getPluginName()))
+                            plugin.setEnabled((boolean) plugin_status.get(plugin.getPluginName()));
+                    }
+                    reply_msg = "Plugins\'s statuses loaded successfully.";
+                }
+                else
+                    reply_msg = "Statuses data not existed or errors occurred.";
+            }
+
+            // permission data for plugin system
+            else if (args[1].equals("sys-save"))
+            {
+                if(user_id != admin)
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                reply_msg = (this.saveData(permission_list, "data/permission.data") ? "Permission data saved successfully." : this.MSG_ERRORS_OCCUR);
+            }
+            else if (args[1].equals("sys-load"))
+            {
+                if(user_id != admin)
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                Object object = this.readData("data/permission.data");
+                if (object != null)
+                {
+                    permission_list = (List) object;
+                    reply_msg = "Permission data loaded successfully.";
+                }
+                else
+                    reply_msg = "Permission data not existed or errors occurred.";
+            }
+            else if (args[1].equals("sys-clear"))
+            {
+                if(user_id != admin)
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                permission_list.clear();
+                reply_msg = "Permision list cleared.";
+            }
+            else if (args[1].equals("sys-init"))
+            {
+                if (user_id != admin)
+                    return messageSender(bot, group_event, private_event, type, this.MSG_PERMISSION_DENIED);
+
+                A3Plugin plugin = null;
+                for (int i = 0; i < plugin_list.size(); i++)
+                {
+                    plugin = plugin_list.get(i);
+                    plugin.setAdmin(admin);
+                    plugin.setPermissionList(permission_list);
+                }
+                reply_msg = this.MSG_SUCCESS;
+            }
+            else // others under "/plugin", print help info for it
+                reply_msg = help_info;
+        }
+
+        return messageSender(bot, group_event, private_event, type, reply_msg);
+    }
+
+    public int messageSender(@NotNull Bot bot, OnebotEvent.GroupMessageEvent group_event, OnebotEvent.PrivateMessageEvent private_event, int type, String msg)
+    {
+        switch (type)
+        {
+            case TYPE_MESSAGE_GROUP:
+                bot.sendGroupMsg(group_event.getGroupId(), msg, false);
+                break;
+            case TYPE_MESSAGE_PRIVATE:
+                bot.sendPrivateMsg(private_event.getUserId(), msg, false);
+                break;
+        }
+
+        return MESSAGE_BLOCK;
+    }
 }

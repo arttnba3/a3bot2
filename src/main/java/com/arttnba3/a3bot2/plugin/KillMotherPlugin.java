@@ -28,35 +28,15 @@ public class KillMotherPlugin extends A3Plugin
             + "/nmsl load            ----载入杀🦄客数据\n"
             + "/nmsl clear           ----清除杀🦄客数据\n"
             + "多余的参数会自动与您的母亲一起身体力行解决🗾的少子化问题";
-    List killer_list = new ArrayList<Long>();
-    File file = null;
-    FileInputStream fileInputStream = null;
-    FileOutputStream fileOutputStream = null;
+    List killer_list;
 
-    @SuppressWarnings("unchecked")
     public KillMotherPlugin()
     {
         this.setPluginName("KillMotherPlugin");
         this.addCommand("/nmsl");
         this.setDataPath("data/nmsl_killer_list.data");
-        file = new File(this.getDataPath());
-        try
-        {
-            if (!file.exists())
-                return ;
-
-            fileInputStream = new FileInputStream(file);
-            fileOutputStream = new FileOutputStream(file,true);
-            InputStream inputStream = new FileInputStream(file);
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            killer_list = (List) objectInputStream.readObject();
-            objectInputStream.close();
-            inputStream.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        Object object = this.readData(this.getDataPath());
+        killer_list = (object != null ? (ArrayList) object : new ArrayList<Long>());
     }
 
     @Override
@@ -68,7 +48,6 @@ public class KillMotherPlugin extends A3Plugin
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public int onGroupMessage(@NotNull Bot bot, @NotNull OnebotEvent.GroupMessageEvent event)
     {
         bot.sendGroupMsg(event.getGroupId(), getKillingMsg(event.getUserId(), this.getArgs()), false);
@@ -80,8 +59,9 @@ public class KillMotherPlugin extends A3Plugin
         String mother_killing_msg;
 
         if (user_id != this.getAdmin() && !getPermissionList().contains(user_id) &&!killer_list.contains(user_id))
-            return "Permission denied, authorization limited.";
+            return this.MSG_PERMISSION_DENIED;
 
+        // basic getting message from the link
         if (args.length == 1)
         {
             try
@@ -99,17 +79,17 @@ public class KillMotherPlugin extends A3Plugin
             catch (Exception e)
             {
                 e.printStackTrace();
-                return "Inner error, see the terminal for more infomation.";
+                return this.MSG_ERRORS_OCCUR;
             }
         }
-        else if (args.length < 3)
+        else if (args.length < 3) // not the command
             return help_info;
         else
         {
             if (args[1].equals("add") || args[1].equals("del"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    return "Permission denied, authorization limited.";
+                    return this.MSG_PERMISSION_DENIED;
 
                 try
                 {
@@ -121,7 +101,7 @@ public class KillMotherPlugin extends A3Plugin
                             return "Already permitted.";
 
                         killer_list.add(obj_user);
-                        return "Success.";
+                        return this.MSG_SUCCESS;
                     }
                     else
                     {
@@ -129,7 +109,7 @@ public class KillMotherPlugin extends A3Plugin
                             return "Permitted user not found.";
 
                         killer_list.remove(obj_user);
-                        return "Success.";
+                        return this.MSG_SUCCESS;
                     }
                 }
                 catch (Exception e)
@@ -142,62 +122,39 @@ public class KillMotherPlugin extends A3Plugin
             else if (args[1].equals("set"))
             {
                 if (user_id != this.getAdmin() && !killer_list.contains(user_id))
-                    return "Permission denied, authorization limited.";
+                    return this.MSG_PERMISSION_DENIED;
 
                 this.level = args[2];
-                return "Success.";
+                return this.MSG_SUCCESS;
             }
             else if (args[1].equals("save"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    return "Permission denied, authorization limited.";
+                    return this.MSG_PERMISSION_DENIED;
 
-                try
-                {
-                    File killer_data = new File(this.getDataPath());
-                    if (!killer_data.exists())
-                        killer_data.createNewFile();
-                    OutputStream outputStream = new FileOutputStream(killer_data);
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                    objectOutputStream.writeObject(killer_list);
-                    objectOutputStream.close();
-                    outputStream.close();
+                if (saveData(this.killer_list, this.getDataPath()))
                     return "Killer data saved successfully.";
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return "Unexpected errors occurred, check terminal for more info.";
-                }
+                else
+                    return this.MSG_ERRORS_OCCUR;
             }
             else if (args[1].equals("load"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    return "Permission denied, authorization limited.";
+                    return this.MSG_PERMISSION_DENIED;
 
-                try
+                Object object = this.readData(this.getDataPath());
+                if (object != null)
                 {
-                    File killer_data = new File(this.getDataPath());
-                    if (!killer_data.exists())
-                        return "Killer data not existed.";
-
-                    InputStream inputStream = new FileInputStream(killer_data);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                    killer_list = (List) objectInputStream.readObject();
-                    objectInputStream.close();
-                    inputStream.close();
-                        return "Killer data loaded successfully.";
+                    killer_list = (ArrayList) object;
+                    return "Killer data loaded successfully.";
                 }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    return "Unexpected errors occurred, check terminal for more info.";
-                }
+                else
+                    return this.MSG_ERRORS_OCCUR;
             }
             else if (args[1].equals("clear"))
             {
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    return "Permission denied, authorization limited.";
+                    return this.MSG_PERMISSION_DENIED;
 
                 killer_list.clear();
                     return "Killer data cleared.";

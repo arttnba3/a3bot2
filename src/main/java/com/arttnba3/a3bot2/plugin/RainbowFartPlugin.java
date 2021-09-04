@@ -62,7 +62,7 @@ public class RainbowFartPlugin extends A3Plugin
             catch (Exception e)
             {
                 e.printStackTrace();
-                return "Unexpected errors occurred, check terminal for more info.";
+                return this.MSG_ERRORS_OCCUR;
             }
         }
         else
@@ -73,10 +73,10 @@ public class RainbowFartPlugin extends A3Plugin
                     return help_info;
 
                 if (user_id != this.getAdmin() && !this.getPermissionList().contains(user_id))
-                    return  "Permission denied, authorization limited.";
+                    return  this.MSG_PERMISSION_DENIED;
 
                 this.level = args[2];
-                return  "Success.";
+                return  this.MSG_SUCCESS;
             }
             else
                 return help_info;

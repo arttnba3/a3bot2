@@ -107,14 +107,15 @@ admin = 1145141919
 
 For better experience, I've built some plugins for you to use:
 
-- plugin system 1.2: a plugin to control all the plugins, all messages will(and shall) be dealt by it **with a simple parser**. command: `/plugin`
+- plugin system 1.2.1: a plugin to control all the plugins, all messages will(and shall) be dealt by it **with a simple parser**. command: `/plugin`
 - repeater plugin 1.0: to simply repeat the message that was sent continuously for more than one time in a group
 - anti-withdraw plugin 1.0: a plugin to resend the message that was withdrawn by someone
 - rainbow-fart plugin 1.1: to simply get a sentence from [https://chp.shadiao.app](https://chp.shadiao.app) by the command `/rainbow`
-- mother-killing plugin 1.0: to simply get a sentence from [https://nmsl.shadiao.app](https://chp.shadiao.app) by the command `/nmsl`
-- sign-in plugin 1.0: to simply record the sign-in in order by the command `/signin`
+- mother-killing plugin 1.0.1: to simply get a sentence from [https://nmsl.shadiao.app](https://chp.shadiao.app) by the command `/nmsl`
+- sign-in plugin 1.0.1: to simply record the sign-in in order by the command `/signin`
+- roll plugin 1.1: to roll something out by the command `/roll`
 - echo plugin 1.0: to simply echo a sentence with command `/echo` (only for admin temporarily)
-- teach plugin 1.0: to teach the bot "how to talk" with commands `/teach` and `/delete`
+- teach plugin 1.1: to teach the bot "how to talk" with commands `/teach` and `/delete`
 - message walls 1.0: a plugin to intercepts all the message which may not be dealt by the plugin system
 - ...
 
@@ -184,7 +185,7 @@ The project is almost all based on the [pbbot](https://github.com/ProtobufBot/Pr
 
 ## To-do List...
 
-- Optimize the plugin system
+- Optimize the plugin system (Always doing now)
 - move available plugins from the old [a3bot](https://github.com/arttnba3/a3bot)
-
+- Add more playable plugins
 - ...

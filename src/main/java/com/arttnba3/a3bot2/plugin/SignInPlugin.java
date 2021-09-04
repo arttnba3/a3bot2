@@ -25,9 +25,6 @@ public class SignInPlugin extends A3Plugin
             + "/signin clear [group]    ------手动清理签到数据";
 
     ArrayList<String> per_command;
-    FileInputStream fileInputStream = null;
-    FileOutputStream fileOutputStream = null;
-    File file = null;
 
     public SignInPlugin()
     {
@@ -42,24 +39,8 @@ public class SignInPlugin extends A3Plugin
         per_command.add("load");
         per_command.add("clear");
 
-        file = new File(this.getDataPath());
-        try
-        {
-            if (!file.exists())
-                return ;
-
-            fileInputStream = new FileInputStream(file);
-            fileOutputStream = new FileOutputStream(file,true);
-            InputStream inputStream = new FileInputStream(file);
-            ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-            sign_in_data = (HashMap<Long, Pair<ArrayList<String>, HashMap<Long, Long>>>) objectInputStream.readObject();
-            objectInputStream.close();
-            inputStream.close();
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        Object object = this.readData(this.getDataPath());
+        sign_in_data = (object != null ? (HashMap<Long, Pair<ArrayList<String>, HashMap<Long, Long>>>) object : new HashMap<>());
     }
 
     @Override
@@ -152,7 +133,7 @@ public class SignInPlugin extends A3Plugin
         {
             if (user_id != this.getAdmin())
             {
-                bot.sendGroupMsg(group_id,"Permission denied, authorization limited.",false);
+                bot.sendGroupMsg(group_id,this.MSG_PERMISSION_DENIED,false);
                 return MESSAGE_BLOCK;
             }
 
@@ -195,47 +176,21 @@ public class SignInPlugin extends A3Plugin
             }
             else if (args[1].equals("load"))
             {
-                try
+                Object object = this.readData(this.getDataPath());
+                if (object != null)
                 {
-                    File signin_data = new File(this.getDataPath());
-                    if (!signin_data.exists())
-                    {
-                        bot.sendGroupMsg(group_id, "Signin data not existed.", false);
-                        return MESSAGE_BLOCK;
-                    }
-
-                    InputStream inputStream = new FileInputStream(signin_data);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-                    sign_in_data = (HashMap<Long, Pair<ArrayList<String>, HashMap<Long, Long>>>) objectInputStream.readObject();
-                    objectInputStream.close();
-                    inputStream.close();
+                    sign_in_data = (HashMap<Long, Pair<ArrayList<String>, HashMap<Long, Long>>>) object;
                     bot.sendGroupMsg(group_id,"Signin data loaded successfully.",false);
                 }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
-                }
+                else
+                    bot.sendGroupMsg(group_id, "Unable to load data, file not existed or errors occurred.", false);
             }
             else if (args[1].equals("save"))
             {
-                try
-                {
-                    File file = new File(this.getDataPath());
-                    if (!file.exists())
-                        file.createNewFile();
-                    OutputStream outputStream = new FileOutputStream(file);
-                    ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-                    objectOutputStream.writeObject(sign_in_data);
-                    objectOutputStream.close();
-                    outputStream.close();
+                if (this.saveData(sign_in_data, this.getDataPath()))
                     bot.sendGroupMsg(group_id,"Signin data saved successfully.",false);
-                }
-                catch (Exception e)
-                {
-                    e.printStackTrace();
-                    bot.sendGroupMsg(group_id, "Unexpected errors occurred, check terminal for more info.", false);
-                }
+                else
+                    bot.sendGroupMsg(group_id, this.MSG_ERRORS_OCCUR, false);
             }
             else if (args[1].equals("clear"))
             {
@@ -244,7 +199,7 @@ public class SignInPlugin extends A3Plugin
                     long clear_grp_id = Long.valueOf(args[2]);
                     per_group_list = sign_in_data.get(clear_grp_id).getSecond();
                     per_group_list.clear();
-                    bot.sendGroupMsg(group_id, "Success.", false);
+                    bot.sendGroupMsg(group_id, this.MSG_SUCCESS, false);
                 }
                 catch (Exception e)
                 {
@@ -262,8 +217,7 @@ public class SignInPlugin extends A3Plugin
         return MESSAGE_BLOCK;
     }
 
-    @Scheduled(cron = "0 0 5 * * ? ")
-    // messages shall be saved
+    @Scheduled(cron = "0 0 5 * * ? ") // messages shall be saved
     public void resetData()
     {
         if (!this.isEnabled())
@@ -277,5 +231,7 @@ public class SignInPlugin extends A3Plugin
             per_group_list = entries.next().getValue().getSecond();
             per_group_list.clear();
         }
+
+        System.out.println("\033[32m\033[1m[+] [SignInPlugin] Data automatically cleared. \033[0m");
     }
 }

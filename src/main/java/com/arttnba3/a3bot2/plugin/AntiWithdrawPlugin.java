@@ -6,14 +6,9 @@ import net.lz1998.pbbot.utils.Msg;
 import onebot.OnebotApi;
 import onebot.OnebotBase;
 import onebot.OnebotEvent;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Component
