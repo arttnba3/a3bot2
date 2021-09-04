@@ -7,6 +7,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * basic template of a plugin
+ * by arttnba3
+ * */
+
+//a plugin in use should be with @Component
+//@Component
 public class A3Plugin extends A3PluginWrapper
 {
     // the name of the plugin, needed for the plugin system

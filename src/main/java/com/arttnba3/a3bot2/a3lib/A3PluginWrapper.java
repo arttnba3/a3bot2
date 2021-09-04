@@ -1,23 +1,7 @@
 package com.arttnba3.a3bot2.a3lib;
-
-import net.lz1998.pbbot.bot.Bot;
 import net.lz1998.pbbot.bot.BotPlugin;
-import onebot.OnebotEvent;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Component;
-
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
-/*
- * basic template of a plugin
- * by arttnba3
- * */
-
-//a plugin in use should be with @Component
-//@Component
 public class A3PluginWrapper extends BotPlugin
 {
     // some macros
