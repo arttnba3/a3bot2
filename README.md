@@ -1,3 +1,5 @@
+# 👴✍🉐太🗑🌶，所以👴决定🚮了，🈶时间👴✍个GOのbot
+
 # a3bot2 - documentation
 
 [中文文档](https://github.com/arttnba3/a3bot2/tree/master/doc/README.md)
