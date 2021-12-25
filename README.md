@@ -1,4 +1,4 @@
-# 👴✍🉐太🗑🌶，所以👴决定🚮🌶，🈶时间👴✍个GOのbot
+# 👴✍🉐太🗑🌶，所以👴决定🚮🌶，建议使用👴✍の新のGOのbot[a3bot3](https://github.com/arttnba3/a3bot3)
 
 # ⚠本项目停止维护⚠
 
